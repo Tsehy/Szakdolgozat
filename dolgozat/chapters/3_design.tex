@@ -1,14 +1,54 @@
 \Chapter{Tervezés}
 
-Itt kezdődik a dolgozat lényegi része, úgy értve, hogy a saját munka bemutatása.
-Jellemzően ebben szerepelni szoktak blokkdiagramok, a program struktúrájával foglalkozó leírások.
-Ehhez célszerű UML ábrákat (például osztály- és szekvenciadiagramokat) használni.
+A dobótest felépítése
 
-Amennyiben a dolgozat inkább kutatás jellegű, úgy itt lehet konkretizálni a kutatási módszertant, a kutatás tervezett lépéseit, az indoklást, hogy mit, miért és miért pont úgy érdemes csinálni, ahogyan az a későbbiekben majd részletezésre kerül.
+Csak a konvex esetekkel foglalkozunk, így elegendő a testnek csak a csúcspontjait eltárolni.
+A test szilárdságát azzal biztosítjuk, hogy minden csúcspont közé egy rugót teszünk, amely a visszapattanás során eldeformálódott ponthalmazt az eredeti alakjába próbál visszahúzni.
+A rúgóállandótól függően lesz az objektumnak "zselé" fizikája, amely biztosítja a visszapattanást.
+Minden csúcspontnak külön számoljuk a rá ható erőket (gravitációs erő, rugóerők), valamint a sebességét.
+A zselatinossága miatt akkor tekintjük a testet nyugalmi állapotban amikor a pontok sebességvektorainak öszhosszúsága egy küszöbérték alá esik. (mindig fog pattogni egy kicsit a talajon)
+A dobott értékek meghatározásához a talajon elhelyezkedő pontokat fogjuk figyelembe venni, mivel ha a test a dobás után megáll mindig egy oldallapján fog megállni. (tetraédernél a dobott értéket a felül lévő csúcsa jelöli, míg a kockánál egy oldallap. mindkét esetben a test a talajjal egy teljes oldallapján érintkezik)
+A nyugalmi állapothoz hasonlóan azokat a pontokat tekintjük talajon lévőnek, amelyeknek a $z$ koordinátájuk $0$ és a megadott küszöbérték között található.
 
-Ebben a fejezetben az implementáció nem kell, hogy túl nagy szerepet kapjon.
-Ez még csak a tervezési fázis.
-(Nyilván ha olyan a téma, hogy magának az implementációnak a módjával foglalkozik, adott formális nyelvet mutat be, úgy a kódpéldákat már innen sem lehet kihagyni.)
+
+A dobás szimulálása
+
+A fizikai szimulálás minden iterációja a következő lépésekből ál:
+1. a pontokra ható eredő erők meghatározása
+(gravitációs erő, rugóerők, sebességvektor)
+2. a talajon/talaj alatt lévő lévő pontok pattanásának kezelése
+(előfordul, hogy egy iteráció után egy pont a $z=0$ sík alá esik, ilyenkor a pontot a $z=0$ síkra helyezzük)
+(pattanás során az eredő erő z komponensét kinullázzuk)
+3. mozgásvektorok frissítése az eredő erők alapján
+4. a pontok mozgatása a frissített mozgásvektoroknak megfelelően
+
+A dobások szimulálásához a testet mindig egy random pozícióba forgatjuk, és abből a pozícióbol ejtjük le.
+Ez a random forgatás nem ekvivalens azzal, hogy a testet random elforgatjuk az $x$, $y$ és a $z$ tengely körül.
+
+
+Random forgatás
+
+A tényleges random forgatást az alábbi módon érhetjük el:
+A testet eltoljuk úgy, hogy a középpontja a koordináta rendszerünk origójában legyen. (a test középpontját a csúcsok súlypontjával közelítjük)
+Az egyik csúcspontot kiválasztjuk pivotelemnek.
+Választunk egy pontot az origó középpontú origó-pivot sugarú gömbfelületen.
+A testet úgy forgatjuk $x$, $y$ és $z$ szerint, hogy a pivot csúcs a véletlenszerűen választott pontunka essen.
+Majd a testet elforgatjuk az origón és pivotcsúcson átmenő egyenes körül egy $0^\circ \leq \alpha < 360^\circ$ szöggel.
+
+Az utolsó lépést csak úgy tudjuk megvalósítani, hogy a testet a random pontba forgatás után úgy forgatjuk hogy a pivot az egyik tengelyre illeszkedjen, majd a testet elforgatjuk alpha szöggel az a tengely körül amelyikre illeszkedik a pivot csúcs. Ez után csak annyi a teendőnk hogy a testet visszaforgatjuk abba a pozícióba, hogy a pivot illeszkedjen a választott pontunkra.
+
+Észre lehet venni, hogy a random pontba forgatás, egyik tengelyre való forgatás, majd ismét a random pontba forgatás szekvenciája helyettesíthető azzal, ha egyből az egyik tengelyre forgatjuk rá a pontot, majd a tengely körüli forgatás  után mozgatjuk végleges pozíciójába.
+
+Az algoritmusunk így a következő lépésekből fog állni:
+1. eltoljuk a testet úgy, hogy az origó legyen a középpontja
+2. kiválasztjuk az egyik csúcsot pivotnak
+3. generálunk egy random pontot az origó középpontú origó-pivot távolsággal megegyező sugarú gömbfelületen
+4. a testet elforgatjuk $z$ majd $y$ szerint úgy, hogy a pivot csúcs illeszkedjen az $x$ tengelyre
+5. elforgatjuk a testet egy $0^\circ \leq \alpha < 360^\circ$ szöggel az $x$ tengely körül
+6. a testet $y$ és $z$ szerinti forgatásokkal úgy mozgatjuk, hogy a pivot csúcs illeszkedjen a választott pontra
+7. visszatoljuk a testet az eredeti "helyére" (súlypont alapján)
+
+(megjegyzés: a test eltolásait kivehetjük külön függvénybe)
 
 \Section{Táblázatok}
 

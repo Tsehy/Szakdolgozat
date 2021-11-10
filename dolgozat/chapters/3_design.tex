@@ -40,15 +40,43 @@ Az utolsó lépést csak úgy tudjuk megvalósítani, hogy a testet a random pon
 Észre lehet venni, hogy a random pontba forgatás, egyik tengelyre való forgatás, majd ismét a random pontba forgatás szekvenciája helyettesíthető azzal, ha egyből az egyik tengelyre forgatjuk rá a pontot, majd a tengely körüli forgatás  után mozgatjuk végleges pozíciójába.
 
 Az algoritmusunk így a következő lépésekből fog állni:
+
 1. eltoljuk a testet úgy, hogy az origó legyen a középpontja
+
 2. kiválasztjuk az egyik csúcsot pivotnak
+
 3. generálunk egy random pontot az origó középpontú origó-pivot távolsággal megegyező sugarú gömbfelületen
+
 4. a testet elforgatjuk $z$ majd $y$ szerint úgy, hogy a pivot csúcs illeszkedjen az $x$ tengelyre
+
 5. elforgatjuk a testet egy $0^\circ \leq \alpha < 360^\circ$ szöggel az $x$ tengely körül
+
 6. a testet $y$ és $z$ szerinti forgatásokkal úgy mozgatjuk, hogy a pivot csúcs illeszkedjen a választott pontra
+
 7. visszatoljuk a testet az eredeti "helyére" (súlypont alapján)
 
 (megjegyzés: a test eltolásait kivehetjük külön függvénybe)
+
+Metódusok a test módosítására
+
+1. random pont mozgatása
+
+Ez a módszer a test egy véletlenszerűen választott pontját egy random vektorral eltolja.
+Ha az így kapott test az $N$ dobási kísérlet után nagyobb megbízhatósági szinttel rendelkezik, mint az eredeti test, akkor a következő iterációban ebből a testből indulunk ki, egyébként elvetjük, és előlről kezdjük az algoritmust.
+könnyen implementálható, de a futási eredménye nagyban függ a generált számoktól, valamint kis dobási minta esetén hamarabb kapunk fals eredményt mint a többi metódusban.
+
+2. oldallapok méretének növelése/csökkentése
+
+A test statisztikájának meghatározása után az oldallapokat módosítjuk annak függvényében hogy az adott lap gyakorisága az elvárt érték alatt vagy felett helyezkedik el.
+A módosítás a lap síkjában történik, és minden csúcspontot az oldallap súlypontjához képest mozdítjuk el. (ábra!)
+Mindig egység hosszúságú vektorokkal mozdítjuk el a csúcspontokat.
+A random pont mozgatásos módszerhez képest jelentősebben gyorsabb, de kis mintájú dobások esetén a kapott értékek nem a valóságot tükrözik. (egy $N=200$ darabszámú dobássorozat esetén kapott $p=0.8$ szignifikancia szint nem jelenti azt, hogy $N=1000$ esetén is hasonló lesz a $p$ érték)
+
+3. oldallapok méretének növelése/csökkentése a kapott és várt statisztikák függvényében
+
+Nagyon hasonlít az előzőhöz, csupán annyiban különbözik az előzőtől, hogy amikor az oldallapok pontjait mozgatjuk a vektorok hossza arányos a kapott és várt gyakoriságok különbségével.
+
+
 
 \Section{Táblázatok}
 

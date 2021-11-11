@@ -36,9 +36,8 @@ class Dice:
     def __init__(self):
         self.initSprings()
 
-    #not correct implementation
     def initVerticies(self):
-        pass
+        raise NotImplementedError
 
     def initSprings(self):
         self.springs = []
@@ -288,9 +287,9 @@ class Dice:
 
         return tmp
 
-    #moves a random point
-    #don't use if the dice has nontriangular faces
-    def getModified(self):
+
+    #modification by moving a random point
+    def getRandomModified(self):
         tmp = deepcopy(self)
 
         index = randrange(tmp.n)
@@ -304,9 +303,7 @@ class Dice:
 
         return tmp
 
-    #just an idea
-    #this is not the correct code yet
-    def estimateBody(self, expected, sig, n):
+    def estimateBodyRandom(self, expected, sig, n):
         e = [0] * len(expected)
         for i in range(len(e)):
             e[i] = expected[i] * n
@@ -315,7 +312,7 @@ class Dice:
         p0 = chisquare(stat0, f_exp=e)[1:][0]
 
         while p0 < sig:
-            tmp = self.getModified()
+            tmp = self.getRandomModified()
             stat1 = tmp.droptest(n)
             p1 = chisquare(stat1, f_exp=e)[1:][0]
 
@@ -325,6 +322,8 @@ class Dice:
                 stat0 = stat1
             print(p0)
 
+
+    #modification by changing the size of the faces
     def getFaceModified(self, expected, stat):
         e = [0] * len(expected)
         for i in range(len(e)):
@@ -369,6 +368,60 @@ class Dice:
         return tmp
 
     def estimateBodyFace(self, expected, sig, n):
+        e = [0] * len(expected)
+        for i in range(len(e)):
+            e[i] = expected[i] * n
+        
+        tmp = deepcopy(self)
+
+        stat = tmp.droptest(n)
+        p = chisquare(stat, f_exp=e)[1:][0]
+        while p < sig:
+            tmp = tmp.getFaceModified(e, stat)
+            stat = tmp.droptest(n)
+            p = chisquare(stat, f_exp=e)[1:][0]
+            print("{}, p = {}".format(stat, p))
+        
+        return tmp
+
+
+    #modification by changing the size of the faces
+    #based on the differece of the expected and the measured values
+    def getFaceModified2(self, expected, stat):
+        e = [0] * len(expected)
+        for i in range(len(e)):
+            e[i] = expected[i] * sum(stat)
+
+        tmp = deepcopy(self)
+
+        move = np.zeros((tmp.n, 3), dtype=float)
+
+        #for every face
+        for i in range(len(tmp.faces)):
+
+            #center of the face
+            c = np.array([0, 0, 0], dtype=float)
+            for p in tmp.faces[i]:
+                c += tmp.particles[p].position
+            c /= len(tmp.faces[i])
+
+            #for every particle on a face
+            for p in tmp.faces[i]:
+                v = tmp.particles[p].position - c #from center to particle (out)
+                #v /= np.linalg.norm(v)
+                diff = e[i]/sum(e) - stat[i]/sum(stat)
+                v *= diff 
+
+                move[p,:] += v
+
+        for i in range(tmp.n):
+            tmp.particles[i].position += move[i,:]
+
+        tmp.initSprings()
+
+        return tmp
+
+    def estimateBodyFace2(self, expected, sig, n):
         e = [0] * len(expected)
         for i in range(len(e)):
             e[i] = expected[i] * n
@@ -482,7 +535,7 @@ expected = [0.1, 0.2, 0.3, 0.4]
 
 tetrahedron = Tetrahedron()
 
-t2 = tetrahedron.estimateBodyFace(expected, 0.8, N)
+t2 = tetrahedron.estimateBodyFace2(expected, 0.8, N)
 
 stat = t2.droptest(1000)
 e = [0] * len(expected)

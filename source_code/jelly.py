@@ -287,6 +287,21 @@ class Dice:
 
         return tmp
 
+    def saveObj(self, name):
+        filepath= "objects/{}.obj".format(name)
+
+        with open(filepath, 'w') as f:
+            f.write("# OBJ file\n")
+            for particle in self.particles:
+                f.write("v {} {} {}\n".format(particle.position[0], particle.position[1], particle.position[2]))
+            for i in range(len(self.faces)):
+                f.write("f")
+                for p in self.faces[i]:
+                    f.write(" {}".format(p + 1))
+                f.write("\n")
+
+        print("Obj file saved to '{}'.".format(filepath))
+
 
     #modification by moving a random point
     def getRandomModified(self):
@@ -549,13 +564,15 @@ expected = [0.1, 0.2, 0.3, 0.4]
 
 tetrahedron = Tetrahedron()
 
-t2 = tetrahedron.estimateBodyFace2(expected, 0.8, N)
+tetrahedron.saveObj("test")
 
-stat = t2.droptest(1000)
-e = [0] * len(expected)
-for i in range(len(e)):
-    e[i] = 1000 * expected[i]
-print("p = {}".format(chisquare(stat, f_exp=e)[1:][0]))
+#t2 = tetrahedron.estimateBodyFace2(expected, 0.8, N)
+#
+#stat = t2.droptest(1000)
+#e = [0] * len(expected)
+#for i in range(len(e)):
+#    e[i] = 1000 * expected[i]
+#print("p = {}".format(chisquare(stat, f_exp=e)[1:][0]))
 
 
 #tetrahedron.estimateBody(expected, 0.8, N)

@@ -309,12 +309,13 @@ class Dice:
             e[i] = expected[i] * n
 
         stat0 = self.droptest(n)
-        p0 = chisquare(stat0, f_exp=e)[1:][0]
+        [ p0 ] = chisquare(stat0, f_exp=e)[1:]
+        print(p0)
 
         while p0 < sig:
             tmp = self.getRandomModified()
             stat1 = tmp.droptest(n)
-            p1 = chisquare(stat1, f_exp=e)[1:][0]
+            [ p1 ] = chisquare(stat1, f_exp=e)[1:]
 
             if p0 < p1:
                 self = tmp
@@ -368,6 +369,8 @@ class Dice:
         return tmp
 
     def estimateBodyFace(self, expected, sig, n):
+        print("n = {}".format(n))
+
         e = [0] * len(expected)
         for i in range(len(e)):
             e[i] = expected[i] * n
@@ -375,12 +378,17 @@ class Dice:
         tmp = deepcopy(self)
 
         stat = tmp.droptest(n)
-        p = chisquare(stat, f_exp=e)[1:][0]
+        [ p ] = chisquare(stat, f_exp=e)[1:]
+        print("{}, p = {}".format(stat, p))
+
         while p < sig:
             tmp = tmp.getFaceModified(e, stat)
             stat = tmp.droptest(n)
-            p = chisquare(stat, f_exp=e)[1:][0]
+            [ p ] = chisquare(stat, f_exp=e)[1:][0]
             print("{}, p = {}".format(stat, p))
+
+        if n < 1000:
+            tmp = tmp.estimateBodyFace(expected, 0.8, n + 100)
         
         return tmp
 
@@ -422,6 +430,7 @@ class Dice:
         return tmp
 
     def estimateBodyFace2(self, expected, sig, n):
+        print("n = {}".format(n))
         e = [0] * len(expected)
         for i in range(len(e)):
             e[i] = expected[i] * n
@@ -429,12 +438,17 @@ class Dice:
         tmp = deepcopy(self)
 
         stat = tmp.droptest(n)
-        p = chisquare(stat, f_exp=e)[1:][0]
+        [ p ] = chisquare(stat, f_exp=e)[1:]
+        print("{}, p = {}".format(stat, p))
+
         while p < sig:
             tmp = tmp.getFaceModified(e, stat)
             stat = tmp.droptest(n)
-            p = chisquare(stat, f_exp=e)[1:][0]
+            [ p ] = chisquare(stat, f_exp=e)[1:]
             print("{}, p = {}".format(stat, p))
+
+        if n < 1000:
+            tmp = tmp.estimateBodyFace2(expected, 0.8, n + 100)
         
         return tmp
 
@@ -529,7 +543,7 @@ class Octahedron(Dice):
 
 #---------------------------------
 
-N = 200
+N = 100
 
 expected = [0.1, 0.2, 0.3, 0.4]
 

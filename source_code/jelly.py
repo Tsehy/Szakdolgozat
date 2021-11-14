@@ -525,6 +525,34 @@ class Cube(Dice):
                       {2, 3, 6, 7},
                       {4, 5, 6, 7}]
 
+class DoubleTetrahedron(Dice):
+    def __init__(self):
+        self.initVerticies()
+        super().__init__()
+
+    def initVerticies(self):
+        a = 50
+        p = [[   0, a/(2*math.sin(math.pi/3)),                                           0],
+             [   0,                         0,   a*math.sin(math.pi/4)/math.sin(math.pi/3)],
+             [ a/2,     a*math.sin(math.pi/3),   a*math.sin(math.pi/4)/math.sin(math.pi/3)],
+             [-a/2,     a*math.sin(math.pi/3),   a*math.sin(math.pi/4)/math.sin(math.pi/3)],
+             [   0, a/(2*math.sin(math.pi/3)), 2*a*math.sin(math.pi/4)/math.sin(math.pi/3)]]
+        
+        self.particles = []
+        for value in p:
+            self.particles.append(Particle(value))
+
+        self.n = len(self.particles)
+
+        self.maxd = (2*a*math.sin(math.pi/4)/math.sin(math.pi/3))/3
+
+        self.faces = [{0, 1, 2},
+                      {0, 1, 3},
+                      {0, 2, 3},
+                      {1, 2, 4},
+                      {1, 3, 4},
+                      {2, 3, 4}]
+
 class Octahedron(Dice):
     def __init__(self):
         self.initVerticies()

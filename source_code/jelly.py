@@ -326,6 +326,34 @@ class Dice:
 
         print("Obj file saved to '{}'.".format(filepath))
 
+    def getPlaneOfFace(self, face):
+        f = list(face)
+        A = np.matrix([self.particles[f[0]].position,
+                       self.particles[f[1]].position,
+                       self.particles[f[2]].position])
+        
+        p = np.array([0, 0, 0])
+        one = np.array([[1], [1], [1], [1]])
+
+        A = np.vstack([p, A])
+        A = np.append(A, one, axis=1)
+
+        return A
+
+    def isConvex(self):
+        for face in self.faces:
+            A = self.getPlaneOfFace(face)
+            sign = set()
+
+            for i in range(self.n):
+                if i not in face:
+                    A[0, :3] = self.particles[i].position
+                    sign.add(np.linalg.det(A) < 0)
+            
+            if len(sign)!=1:
+                return False
+            
+        return True
 
     #modification by moving a random point
     def getRandomModified(self):

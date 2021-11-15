@@ -1,4 +1,73 @@
-\Chapter{Tervezés}
+\Chapter{Szimulációs környezet}
+
+\Section{A test reprezentációja}
+
+A szimuláció során a test csak a $z=0$ síkkal fog érintkezni, és arról fog visszapattanni, így nem kell az olyan esetekkel foglalkoznunk, hogy az oldallapján, vagy egy élén fog valamivel érintkezni.
+Ha véletlenül mégis egyszerre érintkezne a test éle vagy oldallapja a $z=0$ síkkal, akkor elegendő az élhez vagy oldallaphoz tartozó csúcspontokra elvégezni egyszerre a visszapattanást.
+Emiatt csak a csúcspontokat, valamint az oldallapokon lévő csúcspontok indexét fogjuk eltárolni.
+
+Az egyszerűbb számítások miatt nem szilárd objektumként kezeljük a testet, 	hanem egy pontokból és rugókból álló halmaznak.
+Minden csúcspont közé, egy rugót feszítünk ki, amely a hozzá tartozó végpontokat igyekszik az eredeti távolságukban tartani.
+Emiatt a testnek zselatinos jellege lesz, és ennek mértéke a rugóállandóval befolyásolható.
+
+\SubSection{Pontok}
+
+A pontok felelnek a test mozgásáért, minden fizikai információt itt tárolunk el.
+A szimulálás során a rá ható erőket, a mozgásvektorát, valamint a pozícióját tároljuk el.
+A minden csúcs súlyát egységnyinek tekintjük, ezért nem foglalkozunk vele.
+
+\begin{python}
+class Particle:
+    def __init__(self, a = [0, 0, 0]):
+        self.position = np.array(a, dtype=float) 
+        self.velocity = np.array([0, 0, 0], dtype=float)
+        self.force = np.array([0, 0, 0], dtype=float)
+
+    def __str__(self):
+        return "({:.3f}, {:.3f}, {:.3f})".format(*self.position)
+\end{python}
+
+\SubSection{Rugók}
+
+\begin{python}
+class Spring:
+    def __init__(self, a, b):
+        self.a = a
+        self.b = b
+        self.length = np.linalg.norm(self.b.position - self.a.position)
+	
+    def __str__(self):
+        return f"{self.a}; {self.b}; {self.length}"
+\end{python}
+
+\SubSection{Exportálás obj-be}
+
+Ez a tárolási mód azért előnyös, mert a testeket egy egyszerű konverzióval ki tudjuk menteni .obj fájlba.
+
+\begin{python}
+	def saveObj(self, name):
+	filepath= f"objects/{name}.obj"
+	
+	with open(filepath, 'w') as f:
+	f.write("# OBJ file\n")
+	for particle in self.particles:
+	f.write("v {} {} {}\n".format(*particle.position))
+	for i in range(len(self.faces)):
+	f.write("f")
+	for p in self.faces[i]:
+	f.write(f" {p + 1}")
+	f.write("\n")
+	
+	print(f"Obj file saved to '{filepath}'.")
+\end{python}
+
+\Section{Dobások}
+
+\SubSection{Random forgatás}
+
+\SubSection{Leállási feltételek}
+
+\SubSection{Kiértékelés}
 
 A dobótest felépítése
 

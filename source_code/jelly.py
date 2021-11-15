@@ -1,5 +1,6 @@
 import math
 import numpy as np
+import matplotlib.pyplot as plt
 from copy import deepcopy
 from random import uniform
 from random import randrange
@@ -255,7 +256,7 @@ class Dice:
             c = tmp.getCenter()
             tmp.translate(-1 * c)
             tmp.randRotate()
-            #tmp.translate(c)
+            tmp.translate(c)
             tmp.translate(dropHeight)
 
             #droptest
@@ -270,6 +271,32 @@ class Dice:
                 stat[index] += 1
 
         return stat
+
+    def saveDroptestGraph(self, n, name):
+        height = 100
+        dropHeight = np.array([0, 0, height], dtype=float)
+
+        tmp = deepcopy(self)
+        x=[]
+
+        tmp.translate(dropHeight)
+
+        stop = 0
+        i = 0
+        while i < n:
+            tmp.update(TIME, GRAVITY)
+            x.append(tmp.getTotalVelocityLength())
+            if tmp.isStopped() and stop == 0:
+                stop = i
+            i += 1
+
+        plt.plot(x)
+        plt.axvline(stop, color="r")
+        plt.xlabel("time")
+        plt.ylabel("total velocity length")
+
+        plt.savefig("graphs/{}.png".format(name))
+        plt.close()
 
     def getNormalised(self):
         tmp = deepcopy(self)

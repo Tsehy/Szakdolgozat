@@ -17,7 +17,7 @@ class Particle:
         self.force = np.array([0, 0, 0], dtype=float)
         
     def __str__(self):
-        return "({:.3f}, {:.3f}, {:.3f})".format(self.position[0], self.position[1], self.position[2])
+        return "({:.3f}, {:.3f}, {:.3f})".format(*self.position)
         
 class Spring:
     def __init__(self, a, b):
@@ -26,7 +26,7 @@ class Spring:
         self.length = np.linalg.norm(self.b.position - self.a.position)
         
     def __str__(self):
-        return "{}, {}, {}".format(self.a, self.b, self.length)
+        return f"{self.a}; {self.b}; {self.length}"
     
 class Dice:
     def __init__(self):
@@ -280,7 +280,7 @@ class Dice:
         plt.xlabel("time")
         plt.ylabel("total velocity length")
 
-        plt.savefig("graphs/{}.png".format(name))
+        plt.savefig(f"graphs/{name}.png")
         plt.close()
 
     def getNormalised(self):
@@ -302,14 +302,14 @@ class Dice:
         with open(filepath, 'w') as f:
             f.write("# OBJ file\n")
             for particle in self.particles:
-                f.write("v {} {} {}\n".format(particle.position[0], particle.position[1], particle.position[2]))
+                f.write("v {} {} {}\n".format(*particle.position))
             for i in range(len(self.faces)):
                 f.write("f")
                 for p in self.faces[i]:
-                    f.write(" {}".format(p + 1))
+                    f.write(f" {p + 1}")
                 f.write("\n")
 
-        print("Obj file saved to '{}'.".format(filepath))
+        print(f"Obj file saved to '{filepath}'.")
 
     def getPlaneOfFace(self, face):
         f = list(face)
@@ -414,7 +414,7 @@ class Dice:
         return tmp
 
     def estimateBodyFace(self, expected, sig, n):
-        print("n = {}".format(n))
+        print(f"n = {n}")
 
         e = [0] * len(expected)
         for i in range(len(e)):
@@ -424,13 +424,13 @@ class Dice:
 
         stat = tmp.droptest(n)
         [ p ] = chisquare(stat, f_exp=e)[1:]
-        print("{}, p = {}".format(stat, p))
+        print(f"{stat}, p = {p}")
 
         while p < sig:
             tmp = tmp.getFaceModified(e, stat)
             stat = tmp.droptest(n)
             [ p ] = chisquare(stat, f_exp=e)[1:][0]
-            print("{}, p = {}".format(stat, p))
+            print(f"{stat}, p = {p}")
 
         if n < 1000:
             tmp = tmp.estimateBodyFace(expected, 0.8, n + 100)
@@ -475,7 +475,7 @@ class Dice:
         return tmp
 
     def estimateBodyFace2(self, expected, sig, n):
-        print("n = {}".format(n))
+        print(f"n = {n}")
         e = [0] * len(expected)
         for i in range(len(e)):
             e[i] = expected[i] * n
@@ -484,13 +484,13 @@ class Dice:
 
         stat = tmp.droptest(n)
         [ p ] = chisquare(stat, f_exp=e)[1:]
-        print("{}, p = {}".format(stat, p))
+        print(f"{stat}, p = {p}")
 
         while p < sig:
             tmp = tmp.getFaceModified(e, stat)
             stat = tmp.droptest(n)
             [ p ] = chisquare(stat, f_exp=e)[1:]
-            print("{}, p = {}".format(stat, p))
+            print(f"{stat}, p = {p}")
 
         if n < 1000:
             tmp = tmp.estimateBodyFace2(expected, 0.8, n + 100)

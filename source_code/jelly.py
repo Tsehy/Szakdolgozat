@@ -1,13 +1,10 @@
-#%%
 import math
-#import time
 import numpy as np
 from copy import deepcopy
 from random import uniform
 from random import randrange
 from scipy.stats import chisquare
 
-#start_time = time.time()
 TIME = 1
 GRAVITY = np.array([0, 0, -0.01], dtype=float)
 ZMIN = 0.001 #if the z value is less than this value it is considered on the ground
@@ -487,8 +484,6 @@ class Tetrahedron(Dice):
 
         self.n = len(self.particles)
 
-        self.maxd = (2*a*math.sin(math.pi/4)/math.sin(math.pi/3))/3
-
         self.faces = [{0, 1, 2},
                       {0, 1, 3},
                       {0, 2, 3},
@@ -516,8 +511,6 @@ class Cube(Dice):
 
         self.n = len(self.particles)
 
-        self.maxd = math.sqrt(3*(a**2/4))
-
         self.faces = [{0, 1, 2, 3},
                       {0, 1, 4, 5},
                       {0, 2, 4, 6},
@@ -532,19 +525,18 @@ class DoubleTetrahedron(Dice):
 
     def initVerticies(self):
         a = 50
-        p = [[   0, a/(2*math.sin(math.pi/3)),                                           0],
-             [   0,                         0,   a*math.sin(math.pi/4)/math.sin(math.pi/3)],
-             [ a/2,     a*math.sin(math.pi/3),   a*math.sin(math.pi/4)/math.sin(math.pi/3)],
-             [-a/2,     a*math.sin(math.pi/3),   a*math.sin(math.pi/4)/math.sin(math.pi/3)],
-             [   0, a/(2*math.sin(math.pi/3)), 2*a*math.sin(math.pi/4)/math.sin(math.pi/3)]]
+        b = a*math.sin(math.pi/4)/math.sin(math.pi/3)
+        p = [[   0, a/(2*math.sin(math.pi/3)),   0],
+             [   0,                         0,   b],
+             [ a/2,     a*math.sin(math.pi/3),   b],
+             [-a/2,     a*math.sin(math.pi/3),   b],
+             [   0, a/(2*math.sin(math.pi/3)), 2*b]]
         
         self.particles = []
         for value in p:
             self.particles.append(Particle(value))
 
         self.n = len(self.particles)
-
-        self.maxd = (2*a*math.sin(math.pi/4)/math.sin(math.pi/3))/3
 
         self.faces = [{0, 1, 2},
                       {0, 1, 3},
@@ -573,8 +565,6 @@ class Octahedron(Dice):
 
         self.n = len(self.particles)
 
-        self.maxd = a
-
         self.faces = [{0, 1, 3},
                       {0, 1, 4},
                       {0, 2, 3},
@@ -583,34 +573,3 @@ class Octahedron(Dice):
                       {1, 4, 5},
                       {2, 3, 5},
                       {2, 4, 5}]
-
-#---------------------------------
-
-N = 100
-
-expected = [0.1, 0.2, 0.3, 0.4]
-
-tetrahedron = Tetrahedron()
-
-tetrahedron.saveObj("test")
-
-#t2 = tetrahedron.estimateBodyFace2(expected, 0.8, N)
-#
-#stat = t2.droptest(1000)
-#e = [0] * len(expected)
-#for i in range(len(e)):
-#    e[i] = 1000 * expected[i]
-#print("p = {}".format(chisquare(stat, f_exp=e)[1:][0]))
-
-
-#tetrahedron.estimateBody(expected, 0.8, N)
-
-#stat = tetrahedron.droptest(N)
-#t2 = tetrahedron.getFaceModified(expected, stat)
-
-#print(stat)
-#print("p = {}".format(chisquare(stat)[1:][0]))
-#print("p = {}".format(chisquare(stat, f_exp=expected)[1:][0]))
-
-#print("--- %s seconds ---" % (time.time() - start_time))
-# %%

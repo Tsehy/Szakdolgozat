@@ -12,11 +12,9 @@ ZMIN = 0.001 #if the z value is less than this value it is considered on the gro
 
 class Particle:
     def __init__(self, a = [0, 0, 0]):
-        self.mass = 1
         self.position = np.array(a, dtype=float) 
         self.velocity = np.array([0, 0, 0], dtype=float)
         self.force = np.array([0, 0, 0], dtype=float)
-        #self.correction = 0.0
         
     def __str__(self):
         return "({:.3f}, {:.3f}, {:.3f})".format(self.position[0], self.position[1], self.position[2])
@@ -63,12 +61,6 @@ class Dice:
         for spring in self.springs:
             currentLength = np.linalg.norm(spring.b.position - spring.a.position)
             
-            #dx = spring.b.position[0] - spring.a.position[0]
-            #dy = spring.b.position[1] - spring.a.position[1]
-            #dz = spring.b.position[2] - spring.a.position[2]
-            #print(dx, dy, dz)
-            #currentLength = np.sqrt(dx*dx + dy*dy + dz*dz)
-            
             unit = spring.b.position - spring.a.position
             unit /= currentLength
             
@@ -77,7 +69,6 @@ class Dice:
             correction = diff * diff * alpha
             if diff < 0:
                 correction *= -1
-            #self.correction = correction
             unit = unit * correction
                 
             spring.a.force -= unit
@@ -88,7 +79,6 @@ class Dice:
             if particle.position[2] < 0:
                 particle.position[2] = 0
                 particle.force[2] = 0
-                #particle.force *= 0.99
                 
         #update velocities
         for particle in self.particles:
@@ -190,10 +180,6 @@ class Dice:
                 fi_z *= -1
             self.rotate(0, 0, fi_z)
 
-        #with np.printoptions(precision=3, suppress=True):
-        #    print(r_point)
-        #    print(self.particles[0].position)
-
     def getTotalVelocityLength(self):
         totalVelocityLength = 0
         for particle in self.particles:
@@ -244,7 +230,6 @@ class Dice:
         stat = [0] * len(self.faces)
 
         while sum(stat) < n:
-            #print(sum(stat))
 
             height = 100
             dropHeight = np.array([0, 0, height], dtype=float)
@@ -415,23 +400,16 @@ class Dice:
             for p in tmp.faces[i]:
                 v = tmp.particles[p].position - c #from center to particle (out)
                 v /= np.linalg.norm(v)
-                #alpha = expected[i] - stat[i]
-                #v *= alpha
 
                 if expected[i] > stat[i]:
                     move[p,:] += v
                 else:
                     move[p,:] -= v
 
-        #print(move)
-
         for i in range(tmp.n):
             tmp.particles[i].position += move[i,:]
 
         tmp.initSprings()
-
-        #tmp = tmp.getNormalised()
-        #tmp.scale(tmp.maxd)
 
         return tmp
 

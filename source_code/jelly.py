@@ -30,13 +30,15 @@ class Spring:
     
 class Dice:
     def __init__(self):
+        self.partciles = []
+        self.springs = []
+        self.initVerticies()
         self.initSprings()
 
     def initVerticies(self):
         raise NotImplementedError
 
     def initSprings(self):
-        self.springs = []
         for i in range(self.n - 1):
             for j in range(i + 1, self.n):
                 self.springs.append(Spring(self.particles[i], self.particles[j]))
@@ -297,7 +299,7 @@ class Dice:
         return tmp
 
     def saveObj(self, name):
-        filepath= "objects/{}.obj".format(name)
+        filepath= f"objects/{name}.obj"
 
         with open(filepath, 'w') as f:
             f.write("# OBJ file\n")
@@ -501,7 +503,6 @@ class Dice:
 
 class Tetrahedron(Dice):
     def __init__(self):
-        self.initVerticies()
         super().__init__()
 
     def initVerticies(self):
@@ -524,7 +525,6 @@ class Tetrahedron(Dice):
 
 class Cube(Dice):
     def __init__(self):
-        self.initVerticies()
         super().__init__()
 
     def initVerticies(self):
@@ -553,7 +553,6 @@ class Cube(Dice):
 
 class DoubleTetrahedron(Dice):
     def __init__(self):
-        self.initVerticies()
         super().__init__()
 
     def initVerticies(self):
@@ -580,7 +579,6 @@ class DoubleTetrahedron(Dice):
 
 class Octahedron(Dice):
     def __init__(self):
-        self.initVerticies()
         super().__init__()
 
     def initVerticies(self):

@@ -30,8 +30,10 @@ class Spring:
     
 class Dice:
     def __init__(self):
+        self.n
         self.partciles = []
         self.springs = []
+        self.faces = []
         self.initVerticies()
         self.initSprings()
 
@@ -362,20 +364,24 @@ class Dice:
         for i in range(len(e)):
             e[i] = expected[i] * n
 
-        stat0 = self.droptest(n)
-        [ p0 ] = chisquare(stat0, f_exp=e)[1:]
-        print(p0)
+        tmp = deepcopy(self)
 
-        while p0 < sig:
-            tmp = self.getRandomModified()
-            stat1 = tmp.droptest(n)
-            [ p1 ] = chisquare(stat1, f_exp=e)[1:]
+        stat = tmp.droptest(n)
+        [ p ] = chisquare(stat, f_exp=e)[1:]
+        print(p)
 
-            if p0 < p1:
-                self = tmp
-                p0 = p1
-                stat0 = stat1
-            print(p0)
+        while p < sig:
+            tmp2 = tmp.getRandomModified()
+            stat2 = tmp2.droptest(n)
+            [ p2 ] = chisquare(stat2, f_exp=e)[1:]
+
+            if p < p2:
+                tmp = deepcopy(tmp2)
+                p = p2
+                stat = stat2
+            print(p)
+
+        return tmp
 
 
     #modification by changing the size of the faces
@@ -512,7 +518,6 @@ class Tetrahedron(Dice):
              [-a/2,     a*math.sin(math.pi/3),                                         0],
              [   0, a/(2*math.sin(math.pi/3)), a*math.sin(math.pi/4)/math.sin(math.pi/3)]]
         
-        self.particles = []
         for value in p:
             self.particles.append(Particle(value))
 
@@ -538,7 +543,6 @@ class Cube(Dice):
              [a, 0, a],
              [a, a, a]]
 
-        self.particles = []
         for value in p:
             self.particles.append(Particle(value))
 
@@ -564,7 +568,6 @@ class DoubleTetrahedron(Dice):
              [-a/2,     a*math.sin(math.pi/3),   b],
              [   0, a/(2*math.sin(math.pi/3)), 2*b]]
         
-        self.particles = []
         for value in p:
             self.particles.append(Particle(value))
 
@@ -590,7 +593,6 @@ class Octahedron(Dice):
              [-a,  0,   a],
              [ 0,  0, 2*a]]
 
-        self.particles = []
         for value in p:
             self.particles.append(Particle(value))
 

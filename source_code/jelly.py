@@ -30,8 +30,8 @@ class Spring:
     
 class Dice:
     def __init__(self):
-        self.n
-        self.partciles = []
+        self.n = 0
+        self.particles = []
         self.springs = []
         self.faces = []
         self.initVerticies()
@@ -41,6 +41,7 @@ class Dice:
         raise NotImplementedError
 
     def initSprings(self):
+        self.springs = []
         for i in range(self.n - 1):
             for j in range(i + 1, self.n):
                 self.springs.append(Spring(self.particles[i], self.particles[j]))
@@ -73,7 +74,7 @@ class Dice:
             correction = diff * diff * alpha
             if diff < 0:
                 correction *= -1
-            unit = unit * correction
+            unit *= correction
                 
             spring.a.force -= unit
             spring.b.force += unit
@@ -230,7 +231,7 @@ class Dice:
             print("multiple faces detected")
             return -3
 
-    def droptest(self, n):
+    def estimateFrequencies(self, n):
         stat = [0] * len(self.faces)
 
         while sum(stat) < n:
@@ -248,7 +249,7 @@ class Dice:
             tmp.translate(c)
             tmp.translate(dropHeight)
 
-            #droptest
+            #estimateFrequencies
             i = 0
             while (not tmp.isStopped()) and i < 10000:
                 tmp.update(TIME, GRAVITY)
@@ -359,37 +360,40 @@ class Dice:
 
         return tmp
 
-    def estimateBodyRandom(self, expected, sig, n):
-        e = [0] * len(expected)
-        for i in range(len(e)):
-            e[i] = expected[i] * n
-
+    def estimateBodyRandom(self, expected_probability, error_threshold, n):
+        measured_probability = [0] * len(expected_probability)
+        measured_probability2 = [0] * len(expected_probability)
         tmp = deepcopy(self)
 
-        stat = tmp.droptest(n)
-        [ p ] = chisquare(stat, f_exp=e)[1:]
-        print(p)
+        measured_frequency = tmp.estimateFrequencies(n)
+        for i in range(len(measured_frequency)):
+            measured_probability[i] = measured_frequency[i] / n
 
-        while p < sig:
+        mse_value = mse(measured_probability, expected_probability)
+        print(f"0. {measured_frequency}, mse = {mse_value}")
+
+        i = 1
+        while mse_value > error_threshold:
             tmp2 = tmp.getRandomModified()
-            stat2 = tmp2.droptest(n)
-            [ p2 ] = chisquare(stat2, f_exp=e)[1:]
+            measured_frequency2 = tmp2.estimateFrequencies(n)
+            for i in range(len(measured_frequency2)):
+                measured_probability2[i] = measured_frequency2[i] / n
+            mse_value2 = mse(measured_probability2, expected_probability)
 
-            if p < p2:
+            if mse_value2 < mse_value:
                 tmp = deepcopy(tmp2)
-                p = p2
-                stat = stat2
-            print(p)
+                mse_value = mse_value2
+                measured_frequency = measured_frequency2
+                measured_probability = measured_probability2
+                print(f"{i} {measured_frequency}, mse = {mse_value}")
+
+            i += 1
 
         return tmp
 
 
     #modification by changing the size of the faces
-    def getFaceModified(self, expected, stat):
-        e = [0] * len(expected)
-        for i in range(len(e)):
-            e[i] = expected[i] * sum(stat)
-
+    def getFaceModified(self, expected_probability, measured_probability):
         tmp = deepcopy(self)
 
         move = np.zeros((tmp.n, 3), dtype=float)
@@ -409,7 +413,7 @@ class Dice:
                 v = tmp.particles[p].position - c #from center to particle (out)
                 v /= np.linalg.norm(v)
 
-                if expected[i] > stat[i]:
+                if expected_probability[i] > measured_probability[i]:
                     move[p,:] += v
                 else:
                     move[p,:] -= v
@@ -421,38 +425,38 @@ class Dice:
 
         return tmp
 
-    def estimateBodyFace(self, expected, sig, n):
+    def estimateBodyFace(self, expected_probability, error_threshold, n):
         print(f"n = {n}")
 
-        e = [0] * len(expected)
-        for i in range(len(e)):
-            e[i] = expected[i] * n
-        
+        measured_probability = [0] * len(expected_probability)
         tmp = deepcopy(self)
 
-        stat = tmp.droptest(n)
-        [ p ] = chisquare(stat, f_exp=e)[1:]
-        print(f"{stat}, p = {p}")
+        measured_frequency = tmp.estimateFrequencies(n)
+        for i in range(len(measured_frequency)):
+            measured_probability[i] = measured_frequency[i] / n
 
-        while p < sig:
-            tmp = tmp.getFaceModified(e, stat)
-            stat = tmp.droptest(n)
-            [ p ] = chisquare(stat, f_exp=e)[1:][0]
-            print(f"{stat}, p = {p}")
+        mse_value = mse(measured_probability, expected_probability)
+        print(f"{measured_frequency}, mse = {mse_value}")
+
+        while mse_value > error_threshold:
+            tmp = tmp.getFaceModified(expected_probability, measured_probability)
+
+            measured_frequency = tmp.estimateFrequencies(n)
+            for i in range(len(measured_frequency)):
+                measured_probability[i] = measured_frequency[i] / n
+            
+            mse_value = mse(measured_probability, expected_probability)
+            print(f"{measured_frequency}, mse = {mse_value}")
 
         if n < 1000:
-            tmp = tmp.estimateBodyFace(expected, 0.8, n + 100)
+            tmp = tmp.estimateBodyFace(expected_probability, error_threshold, n + 100)
         
         return tmp
 
 
     #modification by changing the size of the faces
     #based on the differece of the expected and the measured values
-    def getFaceModified2(self, expected, stat):
-        e = [0] * len(expected)
-        for i in range(len(e)):
-            e[i] = expected[i] * sum(stat)
-
+    def getFaceModified2(self, expected_probability, measured_probability):
         tmp = deepcopy(self)
 
         move = np.zeros((tmp.n, 3), dtype=float)
@@ -461,6 +465,7 @@ class Dice:
         for i in range(len(tmp.faces)):
 
             #center of the face
+            #trinagular!
             c = np.array([0, 0, 0], dtype=float)
             for p in tmp.faces[i]:
                 c += tmp.particles[p].position
@@ -470,7 +475,7 @@ class Dice:
             for p in tmp.faces[i]:
                 v = tmp.particles[p].position - c #from center to particle (out)
                 #v /= np.linalg.norm(v)
-                diff = e[i]/sum(e) - stat[i]/sum(stat)
+                diff = expected_probability[i] - measured_probability[i]
                 v *= diff 
 
                 move[p,:] += v
@@ -490,13 +495,13 @@ class Dice:
         
         tmp = deepcopy(self)
 
-        stat = tmp.droptest(n)
+        stat = tmp.estimateFrequencies(n)
         [ p ] = chisquare(stat, f_exp=e)[1:]
         print(f"{stat}, p = {p}")
 
         while p < sig:
             tmp = tmp.getFaceModified(e, stat)
-            stat = tmp.droptest(n)
+            stat = tmp.estimateFrequencies(n)
             [ p ] = chisquare(stat, f_exp=e)[1:]
             print(f"{stat}, p = {p}")
 
@@ -504,6 +509,14 @@ class Dice:
             tmp = tmp.estimateBodyFace2(expected, 0.8, n + 100)
         
         return tmp
+
+#stat and expected is relative probabilities
+def mse(measured, expected):
+    m = np.array(measured)
+    e = np.array(expected)
+
+    mse = ((e - m)**2).mean()
+    return mse
 
 #---------------------------------
 

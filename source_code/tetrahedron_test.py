@@ -1,22 +1,22 @@
 from jelly import Tetrahedron
+from scipy.stats import chisquare
 
 N = 100
 
-expected = [0.1, 0.2, 0.3, 0.4]
+expected_probability = [0.1, 0.2, 0.3, 0.4]
 
 tetrahedron = Tetrahedron()
 
 print(tetrahedron.isConvex())
 
-#t2 = tetrahedron.estimateBodyFace2(expected, 0.8, N)
+#t2 = tetrahedron.estimateBodyRandom(expected_probability, 0.00001, N)
+t2 = tetrahedron.estimateBodyFace(expected_probability, 0.00001, N)
+#t2 = tetrahedron.estimateBodyFace2(expected_probability, 0.00001, N)
 
-#tetrahedron.saveObj("tetrahedron_expected_01_02_03_04")
+measured_frequency = t2.estimateFrequencies(1000)
 
-#tetrahedron.estimateBody(expected, 0.8, N)
+expected_frequency = [0] * len(expected_probability)
+for i in range(len(expected_probability)):
+    expected_frequency = 1000 * expected_probability
 
-#stat = tetrahedron.droptest(N)
-#t2 = tetrahedron.getFaceModified(expected, stat)
-
-#print(stat)
-#print("p = {}".format(chisquare(stat)[1:][0]))
-#print("p = {}".format(chisquare(stat, f_exp=expected)[1:][0]))
+print(f"{measured_frequency}, p = {chisquare(measured_frequency, f_exp=expected_frequency)[1:][0]}")

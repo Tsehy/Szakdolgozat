@@ -33,13 +33,31 @@ Az eloszlások távolságának a mérésére a $\chi^2$-et szokták még alkalma
 \chi^2=\sum_{i=1}^{n} \frac{(e_i - m_i)^2}{e_i}
 \]
 
-A fent említett metrikák közül az MSE-t valamint a $\chi^2$-et fogjuk alkalmazni.
-Azért erre a kettőre esett a választás, mert az átlagos négyzetes hiba könnyen számolható négyzetes érték, valamint a $\chi^2$ számítása előnyös az illeszkedés vizsgálatra. 
-Azért fontos hogy legyen egy négyzetes hiba számítás, mert az jobban kiemeli a távolságok közötti különbséget.
+A fent említett metrikák közül az MSE-t valamint a $\chi^2$-et használják a leggyakrabban, ezért ezeket fogjuk összehasonlítani optimalizálás során.
 
-A $\chi^2$ számításánál minden különbségnégyzet a hozzá tartozó elvárt értékkel osztunk el, ezért nagyobb szórást enged meg ott, ahol magasabb az elvárt érték.
-Ezzel szemben az MSE a különbségnégyzetek átlagát nézi, és nem enged meg sehol sem nagyobb szórást.
-Emiatt a testek optimalizálásánál az utóbbi értéket fogjuk minimalizálni, és a $\chi^2$-et csak az ellenőrzésnél fogjuk használni.
+Egy tetraéder optimalizálása során az alábbi értékeket mértük:
+\begin{verbatim}
+1 mse = 0.012605000000000002   chi2 = 309.3075
+2 mse = 0.005730000000000002   chi2 = 133.22333333333333
+3 mse = 0.004737500000000001   chi2 = 123.45833333333333
+4 mse = 0.0024330000000000007  chi2 = 69.02083333333334
+5 mse = 0.001435500000000001   chi2 = 33.730000000000004
+6 mse = 0.0010555000000000004  chi2 = 16.908333333333335
+7 mse = 0.00019650000000000003 chi2 = 3.2125
+8 mse = 0.0010955000000000001  chi2 = 21.553333333333335
+9 mse = 7.399999999999977e-05  chi2 = 1.0333333333333332
+\end{verbatim}
+Addig módosítottuk a testet, amíg a kapott MSE érték $10^{-4}$ allatti nem lett. A dobássorozatok mérete $N=1000$ volt, és a későbbi \ref{sect:facemodification} szakaszban mutatott heurisztikát használtuk.
+Az értékek által meghatározott görbék alakra nagyon hasonlónak tűntek, ezért a legkisebb négyzetek módszerét alkalmazva összehasonlítjuk őket.
+A számítások alapján $a_0 + a_1\cdot mse = \chi^2$, ahol $a_0 = -1.67216109, a_1 = 24742.3397$.
+\begin{figure}[h!]
+	\centering
+	\includegraphics[scale=0.7]{images/mse_vs_chi2.png}
+	\caption{A módosított MSE, és a $\chi^2$ értékek.}
+	\label{fig:mse_vs_chi2}
+\end{figure}
+A \ref{fig:mse_vs_chi2} ábra mutatja, hogy a feltételezésünk igaz volt, a két érték konvergálása hasonló, emiatt nincs lényeges különbség aközött, hogy melyiket fogjuk használni.
+A végső választás azért esett a $\chi^2$-re, mert így tudjuk folyamatosan nyomon követni, hogy egy adott szignifikancia szinten el tudjuk-e fogadni a módosított test által adott gyakoriságokat.
 
 \Section{Egyetlen pont mozgatása}
 \label{sect:randmodification}
@@ -47,15 +65,13 @@ Emiatt a testek optimalizálásánál az utóbbi értéket fogjuk minimalizálni
 Ez a módszer a testet úgy módosítja, hogy mindig egy véletlenszerűen választott csúcspontját egy egység hosszúságú vektorral odébb helyezi.
 A vektort a \ref{subs:randompoint} szakaszban említett módszerrel generáljuk.
 Amennyiben a módosított test dobássorozata alapján kapott gyakoriságok jobbak mint az eredeti testé, az új testen végezzük el ugyan ezt a lépést, egyébként a módosítatlan testen.
-
-%graph update!
 \begin{figure}[h!]
 	\centering
 	\includegraphics[scale=0.7]{images/randmodify_mse.png}
-	\caption{Egyetlen pont elmozdításával kapott test módosítása közben mért legjobb MSE értékek.}
-	\label{fig:randmodify_mse}
+	\caption{Egyetlen pont elmozdításával kapott test módosítása közben mért legjobb $\chi^2$ értékek.}
+	\label{fig:randmodify_chi2}
 \end{figure}
-A \ref{fig:randmodify_mse} grafikon egy tetraéder módosítása közben mért átlagos négyzetes hiba értékeket mutatja.
+A \ref{fig:randmodify_chi2} grafikon egy tetraéder módosítása közben mért értékeket mutatja.
 Az elvárt eloszlás [0.1, 0.2, 0.3, 0.4], leállás feltételéhez az iterációk száma $300$, a dobás sorozatok mérete pedig $N=200$.
 A végén kapott testet 1000 dobára nézve $p=1.69920644248844\cdot10^{-77}$ szignifikancia szinten fogadjuk el.
 Ebből arra tudunk következtetni, hogy a rossz módosítást a kis méretű dobássorozaton pontatlanul mért értékek miatt helyes módosításként kezelte.
@@ -114,6 +130,7 @@ A \ref{fig:facemodification} ábrán látható kék vektorok felelnek az oldalla
 
 A \ref{fig:facemodify_mse} grafikonon látható egy tetraéder módosítása közben kapott átlagos négyzetes hibák.
 A várt eloszlás [0.1, 0.2, 0.3, 0.4], a dobássorozatok mérete $N=1000$, a hibaküszöb pedig $0.00001$.
+%threshold = N * err**2
 A végén kapott testet $1000$ dobásra nézve $p=0.636748542457662$ megbízhatósági szinten lehet elfogadni.
 
 A \ref{subs:randompoint} szakaszban bemutatott módszerhez képest látványosan gyorsabb, és egyértelműen konvergál az elvárt eloszláshoz.

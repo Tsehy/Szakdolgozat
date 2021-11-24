@@ -369,7 +369,7 @@ class Dice:
 
         expected_frequency = [0] * len(expected_probability)
         for i in range(len(expected_frequency)):
-            expected_frequency = expected_probability * n
+            expected_frequency[i] = expected_probability[i] * n
 
         measured_frequency = tmp.estimateFrequencies(n)
 
@@ -395,7 +395,7 @@ class Dice:
 
 
     #modification by changing the size of the faces
-    def getFaceModified(self, expected_probability, measured_probability):
+    def getFaceModified(self, expected_frequency, measured_frequency):
         tmp = deepcopy(self)
 
         move = np.zeros((tmp.n, 3), dtype=float)
@@ -415,7 +415,7 @@ class Dice:
                 v = tmp.particles[p].position - c #from center to particle (out)
                 v /= np.linalg.norm(v)
 
-                if expected_probability[i] > measured_probability[i]:
+                if expected_frequency[i] > measured_frequency[i]:
                     move[p,:] += v
                 else:
                     move[p,:] -= v
@@ -427,40 +427,24 @@ class Dice:
 
         return tmp
 
-    def estimateBodyFace(self, expected_probability, error_threshold, n):
-        print(f"n = {n}")
-
-        #
-        expected_frequency = [0] * len(expected_probability)
-        for i in range(len(expected_frequency)):
-            expected_frequency[i] = expected_probability[i] * n
-        #
-
-        measured_probability = [0] * len(expected_probability)
+    def estimateBodyFace(self, expected_probability, threshold, n):
         tmp = deepcopy(self)
 
+        expected_frequency = [0] * len(expected_probability)
+        for i in range(len(expected_frequency)):
+            expected_frequency[i] = expected_probability[i] * n        
+
         measured_frequency = tmp.estimateFrequencies(n)
-        for i in range(len(measured_frequency)):
-            measured_probability[i] = measured_frequency[i] / n
 
-        mse_value = mse(measured_probability, expected_probability)
-        #
         [ k2 ] = chisquare(measured_frequency, f_exp=expected_frequency)[:1]
-        #
-        print(f"{measured_frequency}, mse = {mse_value}, chi2 = {k2}")
+        print(f"{measured_frequency}, chi2 = {k2}")
 
-        while mse_value > error_threshold:
-            tmp = tmp.getFaceModified(expected_probability, measured_probability)
+        while k2 > threshold:
+            tmp = tmp.getFaceModified(expected_frequency, measured_frequency)
 
             measured_frequency = tmp.estimateFrequencies(n)
-            for i in range(len(measured_frequency)):
-                measured_probability[i] = measured_frequency[i] / n
-            
-            mse_value = mse(measured_probability, expected_probability)
-            #
             [ k2 ] = chisquare(measured_frequency, f_exp=expected_frequency)[:1]
-            #
-            print(f"{measured_frequency}, mse = {mse_value}, chi2 = {k2}")
+            print(f"{measured_frequency}, chi2 = {k2}")
         
         return tmp
 

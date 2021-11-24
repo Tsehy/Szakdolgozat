@@ -15,9 +15,9 @@ tetrahedron = Tetrahedron()
 
 #print(tetrahedron.isConvex())
 
-t2 = tetrahedron.estimateBodyRandom(expected_probability, 300, N)
-#t2 = tetrahedron.estimateBodyFace(expected_probability, 0.0001, 1000)
-#t2, y1 = tetrahedron.estimateBodyFace2(expected_probability, 1, 0.0001, 1000)
+t2 = tetrahedron.estimateBodyRandom(expected_probability, 300, 200)
+#t2 = tetrahedron.estimateBodyFace(expected_probability, treshold, N)
+#t2, y1 = tetrahedron.estimateBodyFace2(expected_probability, lambda_ = 1, treshold, N)
 
 measured_frequency = t2.estimateFrequencies(200)
 [ khi2, pvalue ] = chisquare(measured_frequency, f_exp=[20, 40, 60, 80])

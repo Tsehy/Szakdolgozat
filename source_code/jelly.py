@@ -9,6 +9,9 @@ from scipy.stats import chisquare
 TIME = 1
 GRAVITY = np.array([0, 0, -0.01], dtype=float)
 ZMIN = 0.001 #if the z value is less than this value it is considered on the ground
+MAXVELOCITY = 0.13
+MAXITER = 10000
+ALPHA = 0.1
 
 class Particle:
     def __init__(self, a = [0, 0, 0]):
@@ -70,8 +73,7 @@ class Dice:
             unit /= currentLength
             
             diff = spring.length - currentLength
-            alpha = 0.1
-            correction = diff * diff * alpha
+            correction = diff * diff * ALPHA
             if diff < 0:
                 correction *= -1
             unit *= correction
@@ -134,7 +136,6 @@ class Dice:
         #this means only apply this after translate(-c) !
 
         #random point on the sphere surface
-        #hivatkozás!
         while True:
             r_point = np.array([np.random.normal() for _ in range(3)]) #with normal distribution
             if np.linalg.norm(r_point) != 0:
@@ -201,7 +202,7 @@ class Dice:
             totalVelocityLength += abs(np.linalg.norm(particle.velocity))
         ground
         totalVelocityLength
-        return ((ground > 2) and (totalVelocityLength < 0.13))
+        return ((ground > 2) and (totalVelocityLength < MAXVELOCITY))
 
     def faceOnGround(self):
         #returns the index of the face on the ground
@@ -251,7 +252,7 @@ class Dice:
 
             #estimateFrequencies
             i = 0
-            while (not tmp.isStopped()) and i < 10000:
+            while (not tmp.isStopped()) and i < MAXITER:
                 tmp.update(TIME, GRAVITY)
                 i += 1
 
@@ -350,9 +351,12 @@ class Dice:
         tmp = deepcopy(self)
 
         index = randrange(tmp.n)
-        v = np.random.rand(3,)
-        v *= 2
-        v -= np.array([1, 1, 1])
+
+        while True:
+            v = np.array([np.random.normal() for _ in range(3)])
+            if np.linalg.norm(v) != 0:
+                break
+        v /= np.linalg.norm(v)
         
         tmp.particles[index].position += v
 
@@ -360,34 +364,32 @@ class Dice:
 
         return tmp
 
-    def estimateBodyRandom(self, expected_probability, error_threshold, n):
-        measured_probability = [0] * len(expected_probability)
-        measured_probability2 = [0] * len(expected_probability)
+    def estimateBodyRandom(self, expected_probability, iter_num, n):
         tmp = deepcopy(self)
 
+        expected_frequency = [0] * len(expected_probability)
+        for i in range(len(expected_frequency)):
+            expected_frequency = expected_probability * n
+
         measured_frequency = tmp.estimateFrequencies(n)
-        for i in range(len(measured_frequency)):
-            measured_probability[i] = measured_frequency[i] / n
 
-        mse_value = mse(measured_probability, expected_probability)
-        print(f"0. {measured_frequency}, mse = {mse_value}")
+        [ chi2_value ] = chisquare(measured_frequency, f_exp=expected_frequency)[:1]
+        print(f"0 {measured_frequency}, chi2 = {chi2_value}")
 
-        i = 1
-        while mse_value > error_threshold:
+        ii = 0
+        while ii < iter_num:
+            ii += 1
             tmp2 = tmp.getRandomModified()
             measured_frequency2 = tmp2.estimateFrequencies(n)
-            for i in range(len(measured_frequency2)):
-                measured_probability2[i] = measured_frequency2[i] / n
-            mse_value2 = mse(measured_probability2, expected_probability)
+            [ chi2_value2 ] = chisquare(measured_frequency2, f_exp=expected_frequency)[:1]
 
-            if mse_value2 < mse_value:
+            if chi2_value2 < chi2_value:
                 tmp = deepcopy(tmp2)
-                mse_value = mse_value2
+                chi2_value = chi2_value2
                 measured_frequency = measured_frequency2
-                measured_probability = measured_probability2
-                print(f"{i} {measured_frequency}, mse = {mse_value}")
+                print(f"{ii} {measured_frequency}, chi2 = {chi2_value}")
 
-            i += 1
+        print(f"{ii} {measured_frequency}, chi2 = {chi2_value}")
 
         return tmp
 
@@ -428,6 +430,12 @@ class Dice:
     def estimateBodyFace(self, expected_probability, error_threshold, n):
         print(f"n = {n}")
 
+        #
+        expected_frequency = [0] * len(expected_probability)
+        for i in range(len(expected_frequency)):
+            expected_frequency[i] = expected_probability[i] * n
+        #
+
         measured_probability = [0] * len(expected_probability)
         tmp = deepcopy(self)
 
@@ -436,7 +444,10 @@ class Dice:
             measured_probability[i] = measured_frequency[i] / n
 
         mse_value = mse(measured_probability, expected_probability)
-        print(f"{measured_frequency}, mse = {mse_value}")
+        #
+        [ k2 ] = chisquare(measured_frequency, f_exp=expected_frequency)[:1]
+        #
+        print(f"{measured_frequency}, mse = {mse_value}, chi2 = {k2}")
 
         while mse_value > error_threshold:
             tmp = tmp.getFaceModified(expected_probability, measured_probability)
@@ -446,17 +457,17 @@ class Dice:
                 measured_probability[i] = measured_frequency[i] / n
             
             mse_value = mse(measured_probability, expected_probability)
-            print(f"{measured_frequency}, mse = {mse_value}")
-
-        if n < 1000:
-            tmp = tmp.estimateBodyFace(expected_probability, error_threshold, n + 100)
+            #
+            [ k2 ] = chisquare(measured_frequency, f_exp=expected_frequency)[:1]
+            #
+            print(f"{measured_frequency}, mse = {mse_value}, chi2 = {k2}")
         
         return tmp
 
 
     #modification by changing the size of the faces
     #based on the differece of the expected and the measured values
-    def getFaceModified2(self, expected_probability, measured_probability):
+    def getFaceModified2(self, expected_frequency, measured_frequency, lambda_):
         tmp = deepcopy(self)
 
         move = np.zeros((tmp.n, 3), dtype=float)
@@ -474,9 +485,8 @@ class Dice:
             #for every particle on a face
             for p in tmp.faces[i]:
                 v = tmp.particles[p].position - c #from center to particle (out)
-                #v /= np.linalg.norm(v)
-                diff = expected_probability[i] - measured_probability[i]
-                v *= diff 
+                diff = (expected_frequency[i] - measured_frequency[i]) / sum(measured_frequency)
+                v *= diff * lambda_
 
                 move[p,:] += v
 
@@ -487,29 +497,32 @@ class Dice:
 
         return tmp
 
-    def estimateBodyFace2(self, expected, sig, n):
-        print(f"n = {n}")
-        e = [0] * len(expected)
-        for i in range(len(e)):
-            e[i] = expected[i] * n
-        
+    def estimateBodyFace2(self, expected_probability, lambda_, threshold, n):
         tmp = deepcopy(self)
 
-        stat = tmp.estimateFrequencies(n)
-        [ p ] = chisquare(stat, f_exp=e)[1:]
-        print(f"{stat}, p = {p}")
+        chi2_list = []
+        expected_frequency = [0] * len(expected_probability)
+        for i in range(len(expected_frequency)):
+            expected_frequency[i] = expected_probability[i] * n
 
-        while p < sig:
-            tmp = tmp.getFaceModified(e, stat)
-            stat = tmp.estimateFrequencies(n)
-            [ p ] = chisquare(stat, f_exp=e)[1:]
-            print(f"{stat}, p = {p}")
+        measured_frequency = tmp.estimateFrequencies(n)
 
-        if n < 1000:
-            tmp = tmp.estimateBodyFace2(expected, 0.8, n + 100)
+        [ chi2_value ] = chisquare(measured_frequency, f_exp=expected_frequency)[:1]
+        chi2_list.append(chi2_value)
+        print(f"{measured_frequency}, chi2 = {chi2_value}")
+
+        while chi2_value > threshold:
+            tmp = tmp.getFaceModified2(expected_frequency, measured_frequency, lambda_)
+
+            measured_frequency = tmp.estimateFrequencies(n)
+            
+            [ chi2_value ] = chisquare(measured_frequency, f_exp=expected_frequency)[:1]
+            chi2_list.append(chi2_value)
+            print(f"{measured_frequency}, chi2 = {chi2_value}")
         
-        return tmp
+        return tmp, chi2_list
 
+#measured squared error
 #stat and expected is relative probabilities
 def mse(measured, expected):
     m = np.array(measured)

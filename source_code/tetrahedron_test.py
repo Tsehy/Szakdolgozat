@@ -1,22 +1,28 @@
 from jelly import Tetrahedron
+from scipy.stats import chi2
 from scipy.stats import chisquare
 
-N = 100
-
 expected_probability = [0.1, 0.2, 0.3, 0.4]
+err = 0.05
+N = 1000
+treshold = N * err**2
+alpha = 0.05 #szignifikancia szint
+
+df = len(expected_probability) - 1
+P = chi2.isf(alpha, df)
 
 tetrahedron = Tetrahedron()
 
-print(tetrahedron.isConvex())
+#print(tetrahedron.isConvex())
 
-#t2 = tetrahedron.estimateBodyRandom(expected_probability, 0.00001, N)
-t2 = tetrahedron.estimateBodyFace(expected_probability, 0.00001, N)
-#t2 = tetrahedron.estimateBodyFace2(expected_probability, 0.00001, N)
+t2 = tetrahedron.estimateBodyRandom(expected_probability, 300, N)
+#t2 = tetrahedron.estimateBodyFace(expected_probability, 0.0001, 1000)
+#t2, y1 = tetrahedron.estimateBodyFace2(expected_probability, 1, 0.0001, 1000)
+
+measured_frequency = t2.estimateFrequencies(200)
+[ khi2, pvalue ] = chisquare(measured_frequency, f_exp=[20, 40, 60, 80])
+print(f"{measured_frequency}, chi2 = {khi2}, level of significance = {1 - pvalue}, {khi2 < P}")
 
 measured_frequency = t2.estimateFrequencies(1000)
-
-expected_frequency = [0] * len(expected_probability)
-for i in range(len(expected_probability)):
-    expected_frequency = 1000 * expected_probability
-
-print(f"{measured_frequency}, p = {chisquare(measured_frequency, f_exp=expected_frequency)[1:][0]}")
+[ khi2, pvalue ] = chisquare(measured_frequency, f_exp=[100, 200, 300, 400])
+print(f"{measured_frequency}, chi2 = {khi2}, level of significance = {1 - pvalue}, {khi2 < P}")

@@ -67,13 +67,14 @@ A vektort a \ref{subs:randompoint} szakaszban említett módszerrel generáljuk.
 Amennyiben a módosított test dobássorozata alapján kapott gyakoriságok jobbak mint az eredeti testé, az új testen végezzük el ugyan ezt a lépést, egyébként a módosítatlan testen.
 \begin{figure}[h!]
 	\centering
-	\includegraphics[scale=0.7]{images/randmodify_mse.png}
+	\includegraphics[scale=0.7]{images/randmodify_chi2.png}
 	\caption{Egyetlen pont elmozdításával kapott test módosítása közben mért legjobb $\chi^2$ értékek.}
 	\label{fig:randmodify_chi2}
 \end{figure}
 A \ref{fig:randmodify_chi2} grafikon egy tetraéder módosítása közben mért értékeket mutatja.
 Az elvárt eloszlás [0.1, 0.2, 0.3, 0.4], leállás feltételéhez az iterációk száma $300$, a dobás sorozatok mérete pedig $N=200$.
-A végén kapott testet 1000 dobára nézve $p=1.69920644248844\cdot10^{-77}$ szignifikancia szinten fogadjuk el.
+A végén kapott testtel egy $N=1000$ méretű dobássorozatnál a $\chi^2$ értéke $298.78$.
+Láthatjuk hogy az így kapott érték túl nagy ahhoz hogy a testet $\alpha = 0.05$ szignifikancia szinten el tudjuk fogadni.
 Ebből arra tudunk következtetni, hogy a rossz módosítást a kis méretű dobássorozaton pontatlanul mért értékek miatt helyes módosításként kezelte.
 Az így elmenett hibás állapotokból gyakran nem tudja az eljárás korrigálni jó irányba a testet.
 
@@ -90,6 +91,7 @@ A fent említett okok miatt érdemesebb más heurisztikával optimalizálni a te
 
 Ez az algoritmus a csúcspontokat aszerint mozgatja, hogy oldallapokra nézve az elvárt és mért valószínűség hogyan viszonyul egymáshoz.
 Ha az adott oldallap előfordulásán növelni szeretnénk akkor a csúcsokat lap súlypontjából kifelé mutató egység hosszúságú vektorokkal mozdítjuk el, egyébként a csúcsokat a súlypont felé mozgatjuk.
+
 A \ref{fig:facemodification} ábrán látható kék vektorok felelnek az oldallap növeléséért, a vörösek pedig annak csökkentéséért.
 
 \begin{figure}[h!]
@@ -123,22 +125,36 @@ A \ref{fig:facemodification} ábrán látható kék vektorok felelnek az oldalla
 \end{figure}
 \begin{figure}[h!]
 	\centering
-	\includegraphics[scale=0.7]{images/facemodify_mse.png}
-	\caption{Az oldallapok méretének módosításával mért MSE értékek az iterációk függvényében.}
-	\label{fig:facemodify_mse}
+	\includegraphics[scale=0.7]{images/facemodify_chi2.png}
+	\caption{Az oldallapok méretének módosításával mért $\chi^2$ értékek az iterációk függvényében.}
+	\label{fig:facemodify_chi2}
 \end{figure}
 
-A \ref{fig:facemodify_mse} grafikonon látható egy tetraéder módosítása közben kapott átlagos négyzetes hibák.
-A várt eloszlás [0.1, 0.2, 0.3, 0.4], a dobássorozatok mérete $N=1000$, a hibaküszöb pedig $0.00001$.
-%threshold = N * err**2
-A végén kapott testet $1000$ dobásra nézve $p=0.636748542457662$ megbízhatósági szinten lehet elfogadni.
+A \ref{fig:facemodify_chi2} grafikonon látható egy tetraéder módosítása közben kapott átlagos négyzetes hibák.
+A várt eloszlás [0.1, 0.2, 0.3, 0.4], a dobássorozatok mérete $N=1000$, leállási feltétel pedig a $\chi^2 < 2.5$.
+A végén kapott test $1000$ dobásra nézve $\chi^2 = 3.5983$ értéket adott.
+Ez amiatt lehetséges, hogy a leállásnál mért értékek pontatlanság miatt közelebb voltak a várt értékekhez.
+Ha kellően alacsonyra állítjuk be a küszöbértéket, akkor az ilyen hibák mellett is tudunk olyan testet kapni, amelyet egy adott $\alpha$ szignifikancia szinten el tudunk fogadni.
 
 A \ref{subs:randompoint} szakaszban bemutatott módszerhez képest látványosan gyorsabb, és egyértelműen konvergál az elvárt eloszláshoz.
 Mivel az algoritmus az aktuálisan mért eloszlásokhoz képest módosítja a lapok méretét, így az esetlegesen elkövetett hibákat folyamatosan tudja javítani, valamint mivel sokkal gyorsabban konvergál, így nyugodtan adhatunk meg nagyobb dobásméretet, amellyel tovább tudjuk csökkenteni az esetleges fals méréseket.
 
 \Section{Módosítás az arányok figyelembe vételével}
+\label{sect:ratiomodification}
 
 Ez a folyamat szinte teljes mértékben megegyezik az előző pontban leírt metódushoz.
 Az egyetlen lényeges különbség annyi, hogy az oldallapokat a gyorsabb konvergencia miatt nem egység hosszú vektorokkal módosítjuk.
 A módosító vektorok hossza függ az oldallapokhoz mért és elvárt valószínűségek különbségétől, hogy a nagyobb eltérések esetében drasztikusabban tudjuk az oldallapokat módosítani.
 Olyan eset is előfordulhat, hogy az oldallap ideális méretének eléréséhez az oldallapot fél egység hossz vektorokkal kéne növelnünk, és ezt a méretet a \ref{sect:facemodification} szakaszban leírt függvénnyel nem tudjuk elérni.
+
+Az algoritmus a módosító vektorok hosszát az oldallapokhoz tartozó várt és mért valószínűségek különbségével határozza meg.
+Ezt a különbséget egy $\lambda$ konstanssal megszorozva tudunk a konvergencia sebességén módosítani.
+\begin{figure}[h!]
+	\centering
+	\includegraphics[scale=0.7]{images/facemodify_chi2.png}
+	\caption{Az algoritmus futásához szükséges iterációk $\lambda$ függvényében.}
+	\label{fig:lambda}
+\end{figure}
+
+A \ref{fig:lambda} grafikonon látható egy tetraéder módosításához szükséges iteráció számok az egyes $\lambda$ értékekhez.
+Leolvasható, hogy a $\lambda = érték$ helyen van a görbe minimuma, ezért ezt az értéket fogjuk használni, feltételezve, hogy minden testhez ugyan az az érték adja az becsült optimális futási időt.

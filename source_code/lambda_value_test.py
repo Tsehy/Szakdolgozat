@@ -1,22 +1,23 @@
 from jelly import Tetrahedron
+import numpy as np
 import matplotlib.pyplot as plt
 
 expected_probability = [0.1, 0.2, 0.3, 0.4]
 err = 0.05
 N = 1000
-treshold = N * err**2
-print(f"treshold = {treshold}")
+threshold = N * err**2
+print(f"threshold = {threshold}")
 
 tetrahedron = Tetrahedron()
+iter = []
+L = np.linspace(0.5, 2.0, 16)
 
-#print("lambda = 1.0")
-#y1 = tetrahedron.estimateBodyFace2(expected_probability, 1.0, treshold, N)[1]
-print("lambda = 2.5")
-y2 = tetrahedron.estimateBodyFace2(expected_probability, 2.5, treshold, N)[1]
+for lambda_ in L:
+    print(f"lambda = {lambda_}")
+    y = tetrahedron.estimateBodyFace2(expected_probability, lambda_, threshold, N)[1]
+    iter.append(len(y))
 
-#plt.plot(y1, 'r')
-plt.plot(y2, 'g')
-plt.xlabel("iteration")
-plt.ylabel("mse")
-#plt.legend(["lambda = 1.0", "lambda = 10.0"])
+plt.plot(L, iter)
+plt.xlabel("lambda")
+plt.ylabel("iteration")
 plt.savefig('graphs/lambatest')

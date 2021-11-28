@@ -10,7 +10,7 @@ lambda_ = 1.0
 
 doubletetrahedron = DoubleTetrahedron()
 
-df = doubletetrahedron.n - 1
+df = len(doubletetrahedron.faces) - 1
 P = chi2.isf(alpha, df)
 
 #test 01
@@ -21,7 +21,7 @@ dt1 = doubletetrahedron.estimateBodyFace2(expected_probability, lambda_, thresho
 
 measured_frequency = dt1.estimateFrequencies(1000)
 [ khi2, pvalue ] = chisquare(measured_frequency, f_exp=[250/3, 500/3, 250, 250, 500/3, 250/3])
-print(f"{measured_frequency}, chi2 = {khi2}, level of significance = {1 - pvalue}, {khi2 < P}")
+print(f"{measured_frequency}, chi2 = {khi2}, {khi2 < P}")
 
 dt1.saveObj("doubletetrahedron_01")
 
@@ -33,6 +33,6 @@ dt2 = doubletetrahedron.estimateBodyFace2(expected_probability, lambda_, thresho
 
 measured_frequency = dt2.estimateFrequencies(1000)
 [ khi2, pvalue ] = chisquare(measured_frequency, f_exp=[400/3, 400/3, 400/3, 400/3, 400/3, 1000/3])
-print(f"{measured_frequency}, chi2 = {khi2}, level of significance = {1 - pvalue}, {khi2 < P}")
+print(f"{measured_frequency}, chi2 = {khi2}, {khi2 < P}")
 
 dt2.saveObj("doubletetrahedron_02")

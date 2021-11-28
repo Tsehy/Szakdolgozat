@@ -151,10 +151,14 @@ Az algoritmus a módosító vektorok hosszát az oldallapokhoz tartozó várt é
 Ezt a különbséget egy $\lambda$ konstanssal megszorozva tudunk a konvergencia sebességén módosítani.
 \begin{figure}[h!]
 	\centering
-	\includegraphics[scale=0.7]{images/facemodify_chi2.png}
+	\includegraphics[scale=0.7]{images/lambdatest.png}
 	\caption{Az algoritmus futásához szükséges iterációk $\lambda$ függvényében.}
 	\label{fig:lambda}
 \end{figure}
 
 A \ref{fig:lambda} grafikonon látható egy tetraéder módosításához szükséges iteráció számok az egyes $\lambda$ értékekhez.
-Leolvasható, hogy a $\lambda = érték$ helyen van a görbe minimuma, ezért ezt az értéket fogjuk használni, feltételezve, hogy minden testhez ugyan az az érték adja az becsült optimális futási időt.
+Látható hogy nem tudunk egyértelműen meghatározni ez alapján egy egyértelmű minimumot.
+Hogy ezt meg tudjuk tenni minden $\lambda$ értékhez több dobássorozatot kéne csinálnunk, és az így mért iterációszámokat kéne átlagolnunk.
+Az egyes módosítások hossza nagyban függ a test alakjától, a várt eloszlástól, az elő mérés pontosságától, valamint a $\lambda$ értéktől.
+Minden testre és azokhoz tartozó eloszlásra nézve a $\lambda$ meghatározása sokkal több időt vesz igénybe, mint ha végig egy adott konstans értékkel számolnánk.
+Emiatt az optimalizálásnál $\lambda = 1$ értékkel fogunk számolni.

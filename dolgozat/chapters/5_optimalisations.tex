@@ -1,13 +1,17 @@
 \Chapter{Testek optimalizálása}
+\label{ch:opt}
 
 Érdemes megnézni, hogy egyes testeknél hogyan tudunk konvergálni különböző eloszlásokhoz.
 Ehhez a \ref{sect:ratiomodification} szakaszban bemutatott heurisztikát fogjuk használni.
 Addig módosítjuk a testeket, amíg az oldallapokhoz tartozó relatív hiba az általunk megadott küszöbérték alá nem esik.
 Ezt a küszöböt $\chi^2$-re nézve az alábbi összefüggéssel írhatjuk fel:
 \[
-\chi^2 < N \cdot error^2,
+\begin{array}{c}
+\chi^2=\sum\limits_{i=1}^{n} \frac{(e_i\cdot (1+error) - e_i)^2}{e_i} = \sum\limits_{i=1}^{n} \frac{(e_i + e_i\cdot error - e_i)^2}{e_i} = \sum\limits_{i=1}^{n} \frac{(e_i\cdot error)^2}{e_i} = \\
+= \sum\limits_{i=1}^{n} \frac{e_i^2\cdot error^2}{e_i} = \sum\limits_{i=1}^{n}{e_i\cdot error^2} = error^2 \sum\limits_{i=1}^{n} e_i = error^2 \cdot N
+\end{array}
 \]
-ahol $N$ a dobássorozat száma és $error$ az általunk megadott hibaküszöb.
+ahol $e_i$ az oldalakhoz tartozó elvárt gyakoriság, $N$ a dobássorozat száma és $error$ az általunk megadott hibaküszöb.
 Ezt a küszöböt tudnánk igazítani ahhoz is, hogy a módosított testet milyen szignifikancia szinten szeretnénk elfogadni.
 Testenként változó, hogy egy adott $\alpha$ szignifikancia szinthez tartozó  $\chi^2$ érték maximum mennyi lehet, és annak nagysága nagyban függ a dobássorozatok méretétől, ezért a fent leírt képlettel fogjuk számolni a hibaküszöböt.
 
@@ -21,41 +25,32 @@ Végül az egyéb tapasztalatok jönnek, hogy mennyire hasonlít a test az álta
 Az alap tetraéder, amit módosítani fogunk 50 egység hosszú oldallapokkal rendelkezik.
 Hogy a módosított alakzatokat $\alpha = 0.05$ szignifikancia szinten el tudjuk fogadni a $\chi^2 < 7.815$ feltételnek teljesülnie kell.
 
-A módosító algoritmusok leírásánál ezen a testen végeztünk teszteket, és mindig a [0.1, 0.2, 0.3, 0.4] eloszlást közelítettük.
-Azért ezeket az értékeket választottuk, mert itt egyértelműen látszódik az egyes oldallapok közötti különbség, valamint könnyen meg tudjuk határozni ránézésre hogy a mért frekvenciák mennyire térnek el az elvárt értékektől.
-
-\begin{python}
-from jelly.py import Tetrahedron
-err = 0.05
-N = 1000
-threshold = n * err**2
-tetrahedron = Tetrahedron()
-t1 = tetrahedron.estimateBodyFace2([0.1,0.2,0.3,0.4],1,threshold,N)[0]
-\end{python}
+A módosító algoritmusok leírásánál ezen a testen végeztünk teszteket, és mindig a $[0.1, 0.2, 0.3, 0.4]$ eloszlást közelítettük.
+Azért ezeket az értékeket választottuk, mert itt egyértelműen látszódik az egyes oldallapok közötti különbség, valamint könnyen meg tudjuk határozni ránézésre, hogy a mért frekvenciák mennyire térnek el az elvárt értékektől.
 
 \begin{figure}[h!]
 	\centering
 	\includegraphics[scale=0.7]{images/tetrahedron_01.png}
-	\caption{Az első tetraéder konvergencia görbéje.}
+	\caption{Az teszt eloszláshoz tartozó konvergencia görbe.}
 	\label{fig:tetra01}
 \end{figure}
 %end chi2 = 1.9608333333333332
 
-A \ref{fig:tetra01} grafikonon látható a konvergenciája a testnek az említett eloszláshoz.
-Látható hogy a választott teszt eloszlás nem csak vizsgálat szempontjából előnyös, hanem könnyen elérhető.
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\textwidth]{images/tetra01obj.png}
+	\caption{A teszt eloszláshoz kapott alakzat.}
+	\label{fig:tetra01obj}
+\end{figure}
 
-A következő test a \textit{Dark Souls: The Board Game}-ben használt narancssárga dobókocka közelítése.
+\Aref{fig:tetra01} grafikonon látható a konvergenciája a testnek az említett eloszláshoz.
+Látható hogy a választott teszt eloszlás nem csak vizsgálat szempontjából előnyös, hanem könnyen elérhető.
+\Aref{fig:tetra01obj} képen 
+
+A következő test a \textit{Dark Souls: The Board Game}-ben \cite{darksouls} használt narancssárga dobókocka közelítése.
 A kocka oldallapjain található értékek a következőek: 1 darab egyes, 2 darab kettes, 2 darab hármas és 1 darab négyes.
 Mivel csak négy érték fordul elő, ezért lehet a testet egy tetraéderrel közelíteni, aminek várhatóan kettő oldallapja nagyobb, kettő oldallapja pedig kisebb lesz.
-
-\begin{python}
-from jelly.py import Tetrahedron
-err = 0.05
-N = 1000
-threshold = n * err**2
-tetrahedron = Tetrahedron()
-t2 = tetrahedron.estimateBodyFace2([1/6,1/3,1/3,1/6],1,threshold,N)[0]
-\end{python}
+Így a közelítendő eloszlás: $[\frac{1}{6}, \frac{1}{3}, \frac{1}{3}, \frac{1}{6}]$
 
 \begin{figure}[h!]
 	\centering
@@ -64,6 +59,13 @@ t2 = tetrahedron.estimateBodyFace2([1/6,1/3,1/3,1/6],1,threshold,N)[0]
 	\label{fig:tetra02}
 \end{figure}
 %end chi2 = 3.689
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\textwidth]{images/tetra02obj.png}
+	\caption{A \textit{Dark Souls} társasjáték narancssárga dobókockájának a közelítése.}
+	\label{fig:tetra02obj}
+\end{figure}
 
 A \ref{fig:tetra02} grafikonon látható, hogy a választott eloszlás elérése nem olyan triviális.
 Az algoritmus követ el hibákat, amelyek a test alakja miatt nem okoznak látványos változást a görbén.
@@ -75,23 +77,11 @@ Felismerhető, hogy kis hibával különböznek az egyforma lappárok, valamint 
 
 \Section{Dupla tetraéder}
 
-A dupla tetraéder a sima változatához hasonlóan 50 egység hosszú oldalélekkel fog rendelkezni.
+A dupla tetraéder a sima változatához hasonlóan $50$ egység hosszú oldalélekkel fog rendelkezni.
 A $\chi^2$ próbánál hogy $\alpha = 0.05$ szignifikancia szinten el tudjuk fogadni a módosítást a $\chi^2$-nek kisebbnek kell lennie mint $11.07$.
 
-
 A tetraéderhez hasonlóan egy egyszerűbbnek tűnő eloszlással fogunk kipróbálni.
-Az eloszlás: [1/12, 2/12, 3/12, 3/12, 2/12, 1/12].
-
-\begin{python}
-from jelly.py import DoubleTetrahedron
-err = 0.05
-N = 1000
-threshold = n * err**2
-doubletetrahedron = DoubleTetrahedron()
-dt1 = doubletetrahedron.estimateBodyFace2(
-      [1/12, 2/12, 3/12, 3/12, 2/12, 1/12],
-      1, threshold, N)[0]
-\end{python}
+Az eloszlás: $[\frac{1}{12}, \frac{2}{12}, \frac{3}{12}, \frac{3}{12}, \frac{2}{12}, \frac{1}{12}]$.
 
 \begin{figure}[h!]
 	\centering
@@ -101,23 +91,19 @@ dt1 = doubletetrahedron.estimateBodyFace2(
 \end{figure}
 %after test chi2 = 1.9919999999999995
 
-A \ref{fig:doubletetra01} grafikonon látható, hogy az 5. iterációtól kezdve elkezdett az algoritmus egyre rosszabb értékeket kapni, és csak utána tudott a megfelelő értékhez konvergálni.
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\textwidth]{images/double01obj.png}
+	\caption{Az első dupla tetraéder.}
+	\label{fig:double01obj}
+\end{figure}
+
+\Aref{fig:doubletetra01} grafikonon látható, hogy az 5. iterációtól kezdve elkezdett az algoritmus egyre rosszabb értékeket kapni, és csak utána tudott a megfelelő értékhez konvergálni.
 Ez amiatt történt, hogy a $\chi^2$ érték nagyon közel került a küszöbértékhez, és a következő iterációkban lévő fokozatos romlás a $\lambda$ értéknek köszönhető.
-Ilyen esetekre számítottunk amikor a \ref{sect:ratiomodification} szakaszban a $\lambda$ értéket akartuk meghatározni.
+Ilyen esetekre számítottunk amikor \aref{sect:ratiomodification} szakaszban a $\lambda$ értéket akartuk meghatározni.
 
-A következő módosításnál a [2/15, 2/15, 2/15, 2/15, 2/15, 1/3] eloszlást szeretnénk elérni.
+A következő módosításnál a $[\frac{2}{15}, \frac{2}{15}, \frac{2}{15}, \frac{2}{15}, \frac{2}{15}, \frac{1}{3}]$ eloszlást szeretnénk elérni.
 Arra számítunk, hogy egy olyan "cinklet" testet kapunk, amelyen az egyik oldal az esetek harmadában lesz a dobások eredménye, a maradék öt oldalnak pedig az előfordulása egyenletes lesz a fennmaradó valószínűségre nézve.
-
-\begin{python}
-from jelly.py import DoubleTetrahedron
-err = 0.05
-N = 1000
-threshold = n * err**2
-doubletetrahedron = DoubleTetrahedron()
-dt2 = doubletetrahedron.estimateBodyFace2(
-      [2/15, 2/15, 2/15, 2/15, 2/15, 1/3],
-      1, threshold, N)[0]
-\end{python}
 
 \begin{figure}[h!]
 	\centering
@@ -127,7 +113,14 @@ dt2 = doubletetrahedron.estimateBodyFace2(
 \end{figure}
 %after test chi2 = 9.489499999999996
 
-A \ref{fig:doubletetra02} grafikon az előzővel ellentétben nem mutatott extrém eltéréseket, de sokkal nehezebben tud konvergálni az elvárt értékekhez.
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\textwidth]{images/double02obj.png}
+	\caption{Az másodikdupla tetraéder.}
+	\label{fig:double02obj}
+\end{figure}
+
+\Aref{fig:doubletetra02} grafikon az előzővel ellentétben nem mutatott extrém eltéréseket, de sokkal nehezebben tud konvergálni az elvárt értékekhez.
 A kapott testen nem olyan látványos az oldallapok közötti különbség mint amire számítottunk.
 
 \newpage
@@ -145,18 +138,7 @@ A mintaszámot is növelhetnénk, de akkor a futási idő exponenciálisan nőne
 
 Az első testtel a hét érme feldobása során kapott értékek összegét szeretnénk közelíteni.
 (Az érmedobás eredményét nullának vagy egynek vesszük.)
-A várt binomiális eloszlás: [1/128, 7/128, 21/128, 35/128, 35/128, 21/128, 7/128, 1/128]
-
-\begin{python}
-from jelly.py import Octahedron
-err = 0.1
-N = 1000
-threshold = n * err**2
-octahedron = Octahedron()
-o1 = octahedron.estimateBodyFace2(
-     [1/128, 7/128, 21/128, 35/128, 35/128, 21/128, 7/128, 1/128],
-     1, threshold, N)[0]
-\end{python}
+A várt binomiális eloszlás: $[\frac{1}{128}, \frac{7}{128}, \frac{21}{128}, \frac{35}{128}, \frac{35}{128}, \frac{21}{128}, \frac{7}{128}, \frac{1}{128}]$
 
 \begin{figure}[h!]
 	\centering
@@ -167,25 +149,21 @@ o1 = octahedron.estimateBodyFace2(
 %after test chi2 = 65.54
 % wrong
 
-A \ref{fig:octa01} grafikonon látható konvergencia alapján ez a legjobb eredmény amit a mérések alatt kaptunk.
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\textwidth]{images/octa01obj.png}
+	\caption{Az első oktaéder.}
+	\label{fig:octa01obj}
+\end{figure}
+
+\Aref{fig:octa01} grafikonon látható konvergencia alapján ez a legjobb eredmény amit a mérések alatt kaptunk.
 ezzel ellentétben az algoritmus leállása után végzett $\chi^2$ próbán nem felelt meg nekünk a test.
 Ez annak a következménye, hogy az elvárt eloszlás nehezen közelíthetősége miatt feljebb vittük a hibaküszöböt, és így pontatlanabb mérést kaptunk.
 A python kódok lassú futási ideje miatt nem a mintavételt növeltük.
 
 Mivel az egyes valószínűségek rögzítve vannak az oldallapokhoz, így meg tudjuk adni azt, hogy két szemben lévő lapnak nagyobb legyen az előfordulása.
 Arra számítunk hogy a kapott testnek az alakja kicsit hasonlítani fog egy hasábra.
-A várt eloszlás: [1/4, 1/12, 1/12, 1/12, 1/12, 1/12, 1/12, 1/4]
-
-\begin{python}
-from jelly.py import Octahedron
-err = 0.1
-N = 1000
-threshold = n * err**2
-octahedron = Octahedron()
-o2 = octahedron.estimateBodyFace2(
-     [1/4, 1/12, 1/12, 1/12, 1/12, 1/12, 1/12, 1/4],
-     1, threshold, N)[0]
-\end{python}
+A várt eloszlás: $[\frac{1}{4}, \frac{1}{12}, \frac{1}{12}, \frac{1}{12}, \frac{1}{12}, \frac{1}{12}, \frac{1}{12}, \frac{1}{4}]$
 
 \begin{figure}[h!]
 	\centering
@@ -195,4 +173,14 @@ o2 = octahedron.estimateBodyFace2(
 \end{figure}
 %after test chi2 = 7.92
 
-description of \ref{fig:octa02}.
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\textwidth]{images/octa02obj.png}
+	\caption{Az második oktaéder.}
+	\label{fig:octa02obj}
+\end{figure}
+
+\Aref{fig:octa02} grafikonról leolvasható, hogy egyszerűbben el tudunk jutni ehhez az eloszláshoz, mint az előtte választotthoz.
+Ez it azt bizonyítja, hogy maga az eloszlás is nagy szerepet játszik a konvergencia gyorsaságában.
+A kapott testen látható (\ref{fig:octa02obj} ábra), hogy nem kaptunk annyira drasztikusan másabb testet, mint vártuk.
+A későbbiekben érdemes lehet egy szélsőségesebb eloszlást kipróbálni.

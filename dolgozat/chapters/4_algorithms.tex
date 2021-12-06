@@ -1,39 +1,46 @@
 \Chapter{Módosító algoritmusok}
 
+A fejezetben három heurisztikát fogunk összehasonlítani a testek optimalizálására.
+Ezek közül egyet fogunk választani, amellyel \aref{ch:opt} fejezetben fogunk számolni.
+
+A fejezetben említése kerülő egység hossz alatt a használt koordináta rendszer egységét értjük.
+A testek éleinek hossza körülbelül 50 egységnek felel meg.
+
 \Section{Az eloszlások távolságának mérése}
 
-Az eloszlások ill. gyakoriságok távolságát több módon is mérhetjük.
-Mivel nem cél a különböző metrikákkal kapott hibaértékek összehasonlítása, ezért lényegtelen hogy a mért és elvárt gyakoriságok vagy/és valószínűségek távolságát vizsgáljuk.
+Az eloszlások illetve gyakoriságok távolságát több módon is mérhetjük.
+Mivel nem cél a különböző metrikákkal kapott hibaértékek összehasonlítása, ezért lényegtelen, hogy a mért és elvárt gyakoriságok vagy/és valószínűségek távolságát vizsgáljuk.
 Ennek a hibának a mérésére a mért és elvárt értékek különbségéből kapható vektor normáival is megtörténhet:
 \[
 \vec{v} = \vec{e} - \vec{m},
 \]
 ahol az $\vec{e}$ az elvárt (\textit{expected}) és az $\vec{m}$ a mért (\textit{measured}) értékeket tartalmazza.
 
-Az így kapott vektor 1-es normája által meghatározott érték megfelel a mért és elvárt adatok közötti abszolút különbségek összegével.
+Az így kapott vektor 1-es normája által meghatározott érték megfelel a mért és elvárt adatok közötti abszolút különbségek összegével:
 \[
-\left\lVert\vec{v}\right\rVert_1 = \sum\limits_{i=1}^{n} |v_i|
+\left\lVert\vec{v}\right\rVert_1 = \sum\limits_{i=1}^{n} |v_i|.
 \]
-A 2--es norma a távolságok négyzetösszegének a gyökét adja vissza.
+A 2--es norma a távolságok négyzetösszegének a gyökét adja vissza:
 \[
-\left\lVert\vec{v}\right\rVert_2 = \sqrt{\sum\limits_{i=1}^{n} |v_i|^2}
+\left\lVert\vec{v}\right\rVert_2 = \sqrt{\sum\limits_{i=1}^{n} |v_i|^2}.
 \]
-A végtelen norma pedig a legnagyobb távolság abszolút értékét határozza meg.
+A végtelen norma pedig a legnagyobb távolság abszolút értékét határozza meg:
 \[
-\left\lVert\vec{v}\right\rVert_\infty = \max\limits_{i=1}^{n} |v_i|
-\]
-
-Lehetséges ezeken kívül az átlagos négyzetes hibának (\textit{mean squared error, MSE}) számítása, amely nem sokban tér el a 2-es norma számításától.
-\[
-MSE(\vec{v}) = \frac{1}{n} \sum_{i=1}^{n}(v_i)^2
+\left\lVert\vec{v}\right\rVert_\infty = \max\limits_{i=1}^{n} |v_i|.
 \]
 
-Az eloszlások távolságának a mérésére a $\chi^2$-et szokták még alkalmazni, amellyel később meg lehet vizsgálni hogy milyen szignifikancia szinten egyezik meg az elvárt és mért értéksorozat.
+Lehetséges ezeken kívül az átlagos négyzetes hibának (\textit{mean squared error, MSE}) számítása, amely nem sokban tér el a 2-es norma számításától:
 \[
-\chi^2=\sum_{i=1}^{n} \frac{(e_i - m_i)^2}{e_i}
+MSE(\vec{v}) = \frac{1}{n} \sum_{i=1}^{n}(v_i)^2.
+\]
+
+Az eloszlások távolságának a mérésére a $\chi^2$-et szokták még alkalmazni, amellyel később meg lehet vizsgálni hogy milyen szignifikancia szinten egyezik meg az elvárt és mért értéksorozat:
+\[
+\chi^2=\sum_{i=1}^{n} \frac{(m_i - e_i)^2}{e_i}.
 \]
 
 A fent említett metrikák közül az MSE-t valamint a $\chi^2$-et használják a leggyakrabban, ezért ezeket fogjuk összehasonlítani optimalizálás során.
+A $\chi^2$ számítására a SciPy \cite{2020SciPy-NMeth} könyvtárbn található függvényt használjuk.
 
 Egy tetraéder optimalizálása során az alábbi értékeket mértük:
 \begin{verbatim}
@@ -56,43 +63,40 @@ A számítások alapján $a_0 + a_1\cdot mse = \chi^2$, ahol $a_0 = -1.67216109,
 	\caption{A módosított MSE, és a $\chi^2$ értékek.}
 	\label{fig:mse_vs_chi2}
 \end{figure}
-A \ref{fig:mse_vs_chi2} ábra mutatja, hogy a feltételezésünk igaz volt, a két érték konvergálása hasonló, emiatt nincs lényeges különbség aközött, hogy melyiket fogjuk használni.
+A \ref{fig:mse_vs_chi2} ábra mutatja, hogy a feltételezésünk igaz volt, a két érték konvergálása hasonló, emiatt nincs lényeges különbség a között, hogy melyiket fogjuk használni.
 A végső választás azért esett a $\chi^2$-re, mert így tudjuk folyamatosan nyomon követni, hogy egy adott szignifikancia szinten el tudjuk-e fogadni a módosított test által adott gyakoriságokat.
 
 \Section{Egyetlen pont mozgatása}
 \label{sect:randmodification}
 
 Ez a módszer a testet úgy módosítja, hogy mindig egy véletlenszerűen választott csúcspontját egy egység hosszúságú vektorral odébb helyezi.
-A vektort a \ref{subs:randompoint} szakaszban említett módszerrel generáljuk.
-Amennyiben a módosított test dobássorozata alapján kapott gyakoriságok jobbak mint az eredeti testé, az új testen végezzük el ugyan ezt a lépést, egyébként a módosítatlan testen.
+A vektort \aref{subs:randompoint} szakaszban említett módszerrel generáljuk.
+Amennyiben a módosított test dobássorozata alapján kapott gyakoriságok jobbak, mint az eredeti testé, az új testen végezzük el ugyan ezt a lépést, egyébként a módosítatlan testen.
 \begin{figure}[h!]
 	\centering
 	\includegraphics[scale=0.7]{images/randmodify_chi2.png}
 	\caption{Egyetlen pont elmozdításával kapott test módosítása közben mért legjobb $\chi^2$ értékek.}
 	\label{fig:randmodify_chi2}
 \end{figure}
-A \ref{fig:randmodify_chi2} grafikon egy tetraéder módosítása közben mért értékeket mutatja.
-Az elvárt eloszlás [0.1, 0.2, 0.3, 0.4], leállás feltételéhez az iterációk száma $300$, a dobás sorozatok mérete pedig $N=200$.
+\Aref{fig:randmodify_chi2} grafikon egy tetraéder módosítása közben mért értékeket mutatja.
+Az elvárt eloszlás $[0.1, 0.2, 0.3, 0.4]$, leállás feltételéhez az iterációk száma $300$, a dobás sorozatok mérete pedig $N=200$.
 A végén kapott testtel egy $N=1000$ méretű dobássorozatnál a $\chi^2$ értéke $298.78$.
 Láthatjuk hogy az így kapott érték túl nagy ahhoz hogy a testet $\alpha = 0.05$ szignifikancia szinten el tudjuk fogadni.
 Ebből arra tudunk következtetni, hogy a rossz módosítást a kis méretű dobássorozaton pontatlanul mért értékek miatt helyes módosításként kezelte.
 Az így elmenett hibás állapotokból gyakran nem tudja az eljárás korrigálni jó irányba a testet.
 
-Ez a módszer a véletlenszerű módosítások miatt nem tud konzisztensen egy megadott hibaküszöbhöz konvergálni, ezért futási paraméternek a módosító iterációk számát kell megadni hibaérték helyett.
-Ez abból következik, hogy nem veszi figyelembe az elkövetett hibás módosításokat és nem von le következtetéseket a mért gyakoriságokból.
-
-Mivel fix hosszúságú vektorral módosítjuk a testet és sosem lépünk vissza rosszabb hibaértéket adó testhez, így előfordulgat, hogy nem tudunk egy bizonyos hibaérték alá menni az optimalizálás során, mert a pontok egységsugarú környezetében található az optimális pozíciója.
+Mivel fix hosszúságú vektorral módosítjuk a testet és sosem lépünk vissza rosszabb hibaértéket adó testhez, így előfordulhat, hogy nem tudunk egy bizonyos hibaérték alá menni az optimalizálás során, mert a pontok egységsugarú környezetében található az optimális pozíciója.
 Ezt úgy tudjuk kijavítani, hogy az iterációszám és a hibaértéktől függően csökkentjük a módosító vektorok hosszát.
 
 A fent említett okok miatt érdemesebb más heurisztikával optimalizálni a testeket.
 
-\Section{Oldallapok méretének módosítása}
+\Section{Lapméret alapján történő korrekció}
 \label{sect:facemodification}
 
 Ez az algoritmus a csúcspontokat aszerint mozgatja, hogy oldallapokra nézve az elvárt és mért valószínűség hogyan viszonyul egymáshoz.
 Ha az adott oldallap előfordulásán növelni szeretnénk akkor a csúcsokat lap súlypontjából kifelé mutató egység hosszúságú vektorokkal mozdítjuk el, egyébként a csúcsokat a súlypont felé mozgatjuk.
 
-A \ref{fig:facemodification} ábrán látható kék vektorok felelnek az oldallap növeléséért, a vörösek pedig annak csökkentéséért.
+\Aref{fig:facemodification} ábrán látható kék vektorok felelnek az oldallap növeléséért, a vörösek pedig annak csökkentéséért.
 
 \begin{figure}[h!]
 	\centering
@@ -131,7 +135,7 @@ A \ref{fig:facemodification} ábrán látható kék vektorok felelnek az oldalla
 \end{figure}
 
 A \ref{fig:facemodify_chi2} grafikonon látható egy tetraéder módosítása közben kapott átlagos négyzetes hibák.
-A várt eloszlás [0.1, 0.2, 0.3, 0.4], a dobássorozatok mérete $N=1000$, leállási feltétel pedig a $\chi^2 < 2.5$.
+A várt eloszlás $[0.1, 0.2, 0.3, 0.4]$, a dobássorozatok mérete $N=1000$, leállási feltétel pedig a $\chi^2 < 2.5$.
 A végén kapott test $1000$ dobásra nézve $\chi^2 = 3.5983$ értéket adott.
 Ez amiatt lehetséges, hogy a leállásnál mért értékek pontatlanság miatt közelebb voltak a várt értékekhez.
 Ha kellően alacsonyra állítjuk be a küszöbértéket, akkor az ilyen hibák mellett is tudunk olyan testet kapni, amelyet egy adott $\alpha$ szignifikancia szinten el tudunk fogadni.
@@ -149,6 +153,12 @@ Olyan eset is előfordulhat, hogy az oldallap ideális méretének eléréséhez
 
 Az algoritmus a módosító vektorok hosszát az oldallapokhoz tartozó várt és mért valószínűségek különbségével határozza meg.
 Ezt a különbséget egy $\lambda$ konstanssal megszorozva tudunk a konvergencia sebességén módosítani.
+Az $i$-edik oldallap $j$-edik pontját mozdító vektort az alábbi képlettel kapjuk meg:
+\[
+\vec{v} = (\vec{p_j} - \vec{c_i}) * \lambda * (e_i - m_i),
+\]
+ahol $\vec{c_i}$ Az $i$-edik oldallap középpontja, $e_i$ és $m_i$ pedig az oldalhoz tartozó elvárt, és mért gyakoriság.
+
 \begin{figure}[h!]
 	\centering
 	\includegraphics[scale=0.7]{images/lambdatest.png}
@@ -162,3 +172,7 @@ Hogy ezt meg tudjuk tenni minden $\lambda$ értékhez több dobássorozatot kén
 Az egyes módosítások hossza nagyban függ a test alakjától, a várt eloszlástól, az elő mérés pontosságától, valamint a $\lambda$ értéktől.
 Minden testre és azokhoz tartozó eloszlásra nézve a $\lambda$ meghatározása sokkal több időt vesz igénybe, mint ha végig egy adott konstans értékkel számolnánk.
 Emiatt az optimalizálásnál $\lambda = 1$ értékkel fogunk számolni.
+
+\begin{remark}
+A tesztelések során egyik test sem került konkáv állapotba, így azt feltételezve hogy ezzel a heurisztikával nem kapunk konvex testből konkáv testet, a konvexitás vizsgálatát a gyorsabb futási idők miatt nem végezzük el.
+\end{remark}

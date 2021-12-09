@@ -37,10 +37,10 @@ class Dice:
         self.particles = []
         self.springs = []
         self.faces = []
-        self.initVerticies()
+        self.initVertices()
         self.initSprings()
 
-    def initVerticies(self):
+    def initVertices(self):
         raise NotImplementedError
 
     def initSprings(self):
@@ -521,7 +521,7 @@ class Tetrahedron(Dice):
     def __init__(self):
         super().__init__()
 
-    def initVerticies(self):
+    def initVertices(self):
         a = 50
         p = [[   0,                         0,                                         0],
              [ a/2,     a*math.sin(math.pi/3),                                         0],
@@ -542,7 +542,7 @@ class Cube(Dice):
     def __init__(self):
         super().__init__()
 
-    def initVerticies(self):
+    def initVertices(self):
         a = 50
         p = [[0, 0, 0],
              [0, a, 0],
@@ -569,7 +569,7 @@ class DoubleTetrahedron(Dice):
     def __init__(self):
         super().__init__()
 
-    def initVerticies(self):
+    def initVertices(self):
         a = 50
         b = a*math.sin(math.pi/4)/math.sin(math.pi/3)
         p = [[   0, a/(2*math.sin(math.pi/3)),   0],
@@ -594,7 +594,7 @@ class Octahedron(Dice):
     def __init__(self):
         super().__init__()
 
-    def initVerticies(self):
+    def initVertices(self):
         a = 50
         p = [[ 0,  0,   0],
              [ 0,  a,   a],

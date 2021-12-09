@@ -1,14 +1,14 @@
 \Chapter{Szimulációs környezet}
 
-A szimulációs környezetet a NumPy \cite{harris2020array} nevű Python \cite{python} könyvtár segítségével készítjük el.
-Azért előnyös saját környezetet csinálni, mert így csak azokat a részeket kell tárolnunk, számolnunk amelyek számunkra szükségesek.
+A szimulációs környezetet a NumPy \cite{harris2020array} nevű Python \cite{python} könyvtár segítségével készítettem el.
+Azért előnyös saját környezetet létrehozni, mert így csak azokat a részeket kell tárolni, számolni amelyek számunkra szükségesek.
 
-Ebben a fejezetben a használt osztályok felépítése valamint a szimuláció működése lesz részletezve.
+Ebben a fejezetben a használt osztályok felépítése valamint a szimuláció működése kerül részletezésre.
 
 \Section{A test reprezentációja}
 
 Az adatok tárolásáért és a szimulációs számításokért egyetlen osztály, a \texttt{Dice} felel.
-A továbbiakban mutatott metódusok ehhez az osztályhoz tartoznak.
+A következőkben bemutatott metódusok ehhez az osztályhoz tartoznak.
 
 \begin{python}
 class Dice:
@@ -20,7 +20,7 @@ class Dice:
         self.initVerticies()
         self.initSprings()
 
-    def initVerticies(self):
+    def initVertices(self):
         raise NotImplementedError
 
     def initSprings(self):
@@ -32,12 +32,11 @@ class Dice:
 
 Az objektumokat egyszerűbb számítások miatt nem szilárdnak tekintjük, hanem pontokból és rugókból álló halmaznak.
 Ezért a test felépítéséhez a csúcspontokat , a közéjük kifeszített rugókat, valamint az oldallapokat határoló csúcsok listáját fogjuk eltárolni.
-
-Minden testhez egy külön kell létrehoznunk egy gyerekosztályt, az \texttt{initVerticies} metódusában beállítjuk a pontokat, oldalakat, csúcsok számát a kívánt testünkhöz.
+Minden testhez külön kell létrehoznunk egy gyerekosztályt, amelynek az \texttt{initVertices} metódusában tudjuk beállítani a pontokat, oldalakat, csúcsok számát a kívánt testünkhöz.
 A program teszteléséhez az alábbi négy testet fogjunk vizsgálni illetve módosítani: tetraéder, dupla tetraéder és oktaéder.
 
 \begin{remark}
-Itt dupla tetraéder néven szerepel az a hat oldalú test, amely et két tetraéder összeragasztásából kapunk.
+Itt dupla tetraéder néven szerepel az a hat oldalú test, amelyet két tetraéder egyik lapjánál történő "összeragasztásából" kapunk.
 \end{remark}
 
 \begin{figure}[h!]
@@ -48,7 +47,7 @@ Itt dupla tetraéder néven szerepel az a hat oldalú test, amely et két tetra�
 \end{figure}
 
 \Aref{fig:uml} diagramon láthatóak a teszteléshez használt osztályok, és az azokhoz tartozó metódusok.
-A \texttt{Particle} és a \texttt{Springs} osztály csak az adatok könnyebb, rendezett tárolásáért felelnek.
+A \texttt{Particle} és a \texttt{Spring} osztály csak az adatok könnyebb, rendezett tárolásáért felelnek.
 
 \SubSection{Pontok}
 
@@ -58,7 +57,7 @@ Minden csúcs súlyát egységnyinek tekintjük, ezért nem foglalkozunk vele.
 
 \begin{python}
 class Particle:
-    def __init__(self, a = [0, 0, 0]):
+    def __init__(self, a=[0, 0, 0]):
         self.position = np.array(a, dtype=float) 
         self.velocity = np.array([0, 0, 0], dtype=float)
         self.force = np.array([0, 0, 0], dtype=float)
@@ -105,11 +104,11 @@ det(A)=0,\quad \text{ahol } A =
 	x_1 & y_1 & z_1 & 1 \\
 	x_2 & y_2 & z_2 & 1 \\
 	x_3 & y_3 & z_3 & 1
-\end{bmatrix}
+\end{bmatrix}.
 \]
 
 \begin{proof}
-	A $P_1(x_1, y_1, z_1)$, $P_2(x_2, y_2, z_2)$ és $P_3(x_3, y_3, z_3)$ pont által meghatározott sík normálvektorja:
+	A $P_1(x_1, y_1, z_1)$, $P_2(x_2, y_2, z_2)$ és $P_3(x_3, y_3, z_3)$ pont által meghatározott sík normálvektora:
 	\[
 	\begin{array}{c}
 		\vec{n}=\overrightarrow{P_1 P_2}\times\overrightarrow{P_1 P_3}=(x_2-x_1, y_2-y_1, z_2-z_1)\times(x_3-x_1, y_3-y_1, z_3-z_1)=\\
@@ -122,7 +121,7 @@ det(A)=0,\quad \text{ahol } A =
 		= ((y_2-y_1)(z_3-z_1)-(z_2-z_1)(y_3-y_1))\vec{i}+\\
 		+ ((z_2-z_1)(x_3-x_1)-(x_2-x_1)(z_3-z_1))\vec{j}+\\
 		+ ((x_2-x_1)(y_3-y_1)-(y_2-y_1)(x_3-x_1))\vec{k}
-	\end{array}
+	\end{array}.
 	\]
 	A normálvektor és a $P1$ által felírt sík egyenlete:
 	\[
@@ -146,7 +145,7 @@ det(A)=0,\quad \text{ahol } A =
 		=(y_2 z_3 - y_1 z_3 - y_2 z_1 - y_3 z_2 + y_3 z_1 + y_1 z_2)x+\\
 		+(x_3 z_2 - x_3 z_1 - x_1 z_2 - x_2 z_3 + x_1 z_3 + x_2 z_1)y+\\
 		+(x_2 y_3 - x_1 y_3 - x_2 y_1 - x_3 y_2 + x_3 y_1 + x_1 y_2)z-\\
-		- x_1 y_2 z_3 - x_2 y_3 z_1 - x_3 y_1 z_2 + x_3 y_2 z_1 + x_2 y_1 z_3  + x_1 y_3 z_2 = 0
+		- x_1 y_2 z_3 - x_2 y_3 z_1 - x_3 y_1 z_2 + x_3 y_2 z_1 + x_2 y_1 z_3  + x_1 y_3 z_2 = 0.
 	\end{array}
 	\]
 	A $P_1(x_1, y_1, z_1)$, $P_2(x_2, y_2, z_2)$ és $P_3(x_3, y_3, z_3)$ pont által meghatározott sík egyenlete a feltételezésünk szerint:
@@ -187,7 +186,7 @@ det(A)=0,\quad \text{ahol } A =
 		=(y_2 z_3 - y_1 z_3 - y_2 z_1 - y_3 z_2 + y_3 z_1 + y_1 z_2)x+\\
 		+(x_3 z_2 - x_3 z_1 - x_1 z_2 - x_2 z_3 + x_1 z_3 + x_2 z_1)y+\\
 		+(x_2 y_3 - x_1 y_3 - x_2 y_1 - x_3 y_2 + x_3 y_1 + x_1 y_2)z-\\
-		- x_1 y_2 z_3 - x_2 y_3 z_1 - x_3 y_1 z_2 + x_3 y_2 z_1 + x_2 y_1 z_3  + x_1 y_3 z_2 = 0
+		- x_1 y_2 z_3 - x_2 y_3 z_1 - x_3 y_1 z_2 + x_3 y_2 z_1 + x_2 y_1 z_3  + x_1 y_3 z_2 = 0.
 	\end{array}
 	\]
 	Mivel ugyan azt az egyenletet kaptuk, így beláthatjuk hogy a sík egyenlete megegyezik a $det(A)=0$ egyenlettel.
@@ -222,7 +221,7 @@ def isConvex(self):
                 A[0, :3] = self.particles[i].position
                 sign.add(np.linalg.det(A) < 0)
 
-        if len(sign)!=1:
+        if len(sign) != 1:
             return False
 
     return True
@@ -230,20 +229,23 @@ def isConvex(self):
 
 \SubSection{Exportálás fájlba}
 
-A programunk nem rendelkezik háromdimenziós megjelenítővel, ezért a testek megjelenítését külső programmal kell megtennünk, amihez a testeket \texttt{obj}\cite{wavefrontOBJ} formátumú fájlba mentjük ki.
+A programunk nem rendelkezik háromdimenziós megjelenítővel, ezért a testek megjelenítését külső programmal kell megtennünk, amihez a testeket WaveFront OBJ \cite{wavefrontOBJ} formátumú fájlba mentjük ki.
 Azért erre esett a választás, mert ezeket a fájlokat a legtöbb 3D szerkesztő meg tudja nyitni, valamint az adattárolása megegyezik az általunk használt tárolási móddal.
+Az exportálás az alábbi metódus formájában valósult meg.
+
+\newpage
 
 \begin{python}
 def saveObj(self, name):
-    filepath= f"objects/{name}.obj"
+    filepath = f"objects/{name}.obj"
 
     with open(filepath, 'w') as f:
         f.write("# OBJ file\n")
         for particle in self.particles:
             f.write("v {} {} {}\n".format(*particle.position))
-        for i in range(len(self.faces)):
+        for face in self.faces:
             f.write("f")
-            for p in self.faces[i]:
+            for p in face:
                 f.write(f" {p + 1}")
             f.write("\n")
 
@@ -255,12 +257,12 @@ def saveObj(self, name):
 A kockadobások szimulálását úgy végezzük, hogy a testet egy adott magasságig felemeljük, majd onnan ejtjük le a $z=0$ síkra.
 A fizikai számításokat a \texttt{Dice.update} metódus végzi el az alábbi lépéssorozatot követve:
 \begin{enumerate}
-	\item A csúcspontokra ható erőt beállítja a gravitációra
-	\item Az erőhöz hozzáadja a mozgásvektorját
-	\item Kiszámítja a rugóerőket, és rendre hozzáadja/kivonja az erőkből
-	\item Ha egy pont a $z=0$ síkon, vagy alatta helyezkedik el, akkor kezeli a visszapattanást
-	\item Az erőkből kiszámítja a pontok új mozgásvektorjait
-	\item A csúcsokat mozgatja a mozgásvektorjuknak megfelelően 
+	\item A csúcspontokra ható erőt beállítja a gravitációs erőre.
+	\item Az erőhöz hozzáadja a csúcspont mozgásvektorát.
+	\item Kiszámítja a rugóerőket, és rendre hozzáadja/kivonja az erőkből.
+	\item Ha egy pont a $z=0$ síkon, vagy alatta helyezkedik el, akkor kezeli a visszapattanást.
+	\item Az erőkből kiszámítja a pontok új mozgásvektorait.
+	\item A csúcsokat mozgatja a mozgásvektoruknak megfelelően .
 \end{enumerate}
 A szimulációnak nem célja, hogy fizikálisan pontos legyen, mivel a testeknek csak az alakja érdekel minket.
 Emiatt az iterációk között eltelt időt egységnyinek tekintjük, és hozzá állítottunk be egy lefelé mutató vektort konstans gravitációs erőnek.
@@ -271,13 +273,13 @@ Emiatt az iterációk között eltelt időt egységnyinek tekintjük, és hozzá
 Azért, hogy a test véletlenszerűen érkezzen az egyik oldalára, a leejtés szimulálása előtt el kell forgatnunk úgy, hogy minden lehetséges pozíció ugyan akkora valószínűséggel forduljon elő.
 Ehhez viszont nem elegendő három $0^\circ \leq \alpha_x,\alpha_y,\alpha_z <360^\circ$ szöget választanunk véletlenszerűen és azokkal elforgatnunk az $x$, $y$ és $z$ tengely körül.
 \begin{proof}
-Amennyiben a szimulációnk hiteles, szabályos kocka esetén a $0^\circ \leq \alpha_x,\alpha_y,$ $\alpha_z <360^\circ$ szögekkel való forgatás helyettesíthető azzal a módszerrel, hogy csak $0^\circ$, $90^\circ$, $180^\circ$ vagy $270^\circ$-kal forgatjuk a tengelyek mentén. Így a kockát összesen $4\cdot 4\cdot 4 = 64$ pozícióba tudjuk forgatni. Mivel a kapott érték nem osztható hattal, így beláthatjuk, hogy a forgatás után történő dobás eloszlása nem egyenletes lesz. 
+Amennyiben a szimulációnk hiteles, szabályos kocka esetén a $0^\circ \leq \alpha_x,\alpha_y,$ $\alpha_z <360^\circ$ szögekkel való forgatás helyettesíthető azzal a módszerrel, hogy csak $0^\circ$, $90^\circ$, $180^\circ$ vagy $270^\circ$-kal forgatjuk a tengelyek mentén. Így a kockát összesen $4\cdot 4\cdot 4 = 64$ módon tudjuk forgatni. Mivel a kapott érték nem osztható hattal, így beláthatjuk, hogy a forgatás után történő dobás eloszlása nem egyenletes lesz. 
 \end{proof}
 
 \noindent Az egyenletes forgatáshoz az alábbi algoritmust használjuk.
 \begin{enumerate}
 	\item Kiválasztjuk az egyik csúcspontot pivotnak.
-	\item Választunk egy $R$ pontot az origó-pivot sugarú gömbfelületen.
+	\item Választunk egy $R$ pontot az origó-pivot sugarú gömbfelületén.
 	\item Úgy forgatjuk a testet, hogy a pivot pont az $R$ pontba essen.
 	\item A testet elforgatjuk az origó és $R$  pontokon áthaladó egyenes körül egy $0^\circ \leq \alpha < 360^\circ$ szögel.
 \end{enumerate}
@@ -289,15 +291,14 @@ Mielőtt a pivot csúcsot a választott pontba forgatnánk, úgy forgatjuk a tes
 Ekkor végezzük el a 4. lépésben leírt forgatást, majd ezután forgatjuk a választott csúcsot az $R$ ponthoz.
 Ez a változtatás nem befolyásolja a kapott forgatást.
 
-Az $R$ pont egyenletes eloszlással történő választásához a gömbfelületen az $x_r, y_r$ és $z_r$ értékeket a standard normális eloszlás szerint választjuk, majd normalizáljuk, és felszorozzuk a gömb sugarával.
-\begin{proof}
+Az $R$ pont egyenletes eloszlással történő választásához a gömbfelületen az $x_r, y_r$ és $z_r$ értékeket a sztenderd normális eloszlás szerint választjuk, majd normalizáljuk, és felszorozzuk a gömb sugarával.
+
 A Box-Muller transzformáció \cite{boxmuller} segítségével két egyenletes eloszlású változó segítségével generálhatunk két normális eloszlású változót. Ebből beláthatjuk az egyenletes és normális eloszlás közötti összefüggés.
-\end{proof}
 
 \SubSection{Leállási feltételek}
 
 A szimuláció során leejtett testünk sosem fog teljesen megállni a rugók miatt, mindig kicsit vibrálni fog, emiatt a szimulációt addig futtatjuk, amíg a csúcspontok mozgásvektorainak az összhosszúsága egy küszöbérték alá nem esik.
-Hogy kizárjuk annak a lehetőségét, hogy a test a fent említett kritériumnak megfelel, de egyik oldalára sem érkezett, ezért meg kell számolni hogy hány csúcs található a $z=0$ sík közelében. (A folyamatos pattogás és rezgés miatt itt is egy küszöbértékhez kell viszonyítanunk)
+Hogy kizárjuk annak a lehetőségét, hogy a test a fent említett kritériumnak megfelel, de egyik oldalára sem érkezett, ezért meg kell számolni hogy hány csúcs található a $z=0$ sík közelében. (A folyamatos pattogás és rezgés miatt itt is egy küszöbértékhez kell viszonyítanunk.)
 
 \begin{figure}[h!]
 	\centering
@@ -316,7 +317,9 @@ A \ref{fig:cn3000} és a \ref{fig:cr6000} ábrán a vörös függőleges vonal j
 Látható, hogy az ideális pozícióból ejtett test sokkal hamarabb megáll, mint a forgatott.
 Az elforgatott kocka nem sokkal az 5000. iteráció után megáll a talajon.
 Nem szabályos test esetén arra számítunk, hogy kevesebb mint 10000 iteráció alatt meg fog állni a test.
-Ha ez nem történne meg az első 10000 iterációban (egy élén vagy csúcsán pattog a végtelenségig) akkor a dobást érvénytelennek tekintjük.
+Ha ez nem történne meg az első 10000 iterációban (egy élén vagy csúcsán pattog a végtelenségig), akkor a dobást érvénytelennek tekintjük.
+
+\newpage
 
 \SubSection{Kiértékelés}
 
@@ -355,6 +358,8 @@ def faceOnGround(self):
         return -3
 \end{python}
 
+\newpage
+
 A dobássorozatokkal kapott gyakoriságokat egy tömbben tároljuk el, ahol a gyakoriságok indexei megegyeznek a hozzájuk tartozó oldallap indexével.
 
 \begin{python}
@@ -386,4 +391,4 @@ def estimateFrequencies(self, n):
 \end{python}
 
 Az így kapott tömb elemein fogunk statisztikai vizsgálatokat végezni, hogy tudjuk a testet az elvárt eloszláshoz módosítani.
-Az egyes algoritmusok részletezése a következő fejezetben találhatóak.
+Az egyes algoritmusok részletezése a következő fejezetben található.

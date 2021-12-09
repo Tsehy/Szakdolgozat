@@ -1,9 +1,14 @@
 \Chapter{Bevezetés}
 
-A fejezet célja, hogy a feladatkiírásnál kicsit részletesebben bemutassa, hogy miről fog szólni a dolgozat.
-Érdemes azt részletezni benne, hogy milyen aktuális, érdekes és nehéz probléma megoldására vállalkozik a dolgozat.
+A szakdolgozatom célja egy olyan program megírása, amely egy adott testet úgy módosít, hogy a testet dobókockaként használva az oldalak előfordulása az általunk megadott értékekhez közelítenek.
+Azért nem bízzuk a test teljes generálását a programra, mert az egyes $n$-oldalú testekhez nem egy testháló létezik, és így több testhálóhoz is le tudjuk tesztelni a programot.
 
-Ez egy egy-két oldalas leírás.
-Nem kellenek bele külön szakaszok (section-ök).
-Az irodalmi háttérbe, a probléma részleteibe csak a következő fejezetben kell belemenni.
-Itt az olvasó kedvét kell meghozni a dolgozat többi részéhez.
+A probléma megoldása nem triviális, érdekes optimalizálási feladat.
+A módosításoknál figyelnünk kell az előfordulási arányok mellett a test konvexitására, és a nem háromszög alakú oldallapok síkban maradására, hogy ne "törjön" több háromszög alakú oldalra.
+
+Ehhez a problémakörhöz kell egy fizikai szimulációs környezetet létrehozni, ami a dobási kísérletek elvégzéséért felel, valamint a testeknek egy általános reprezentációja, amiken a módosításokat könnyen el tudjuk végezni.
+
+Az optimalizálások során azt feltételezzük, hogy a keresett test létezik, de pontos egyezés helyett valamilyen hiba szerint fogjuk az alakzatokat elfogadni.
+A dolgozatban több különböző hibaszámítást fogunk megvizsgálni, és ezeket fogjuk összehasonlítani, hogy számunkra melyik használata lenne a legelőnyösebb.
+
+A dolgozatban részletes leírásra kerül a szimuláció felépítése, az adatok tárolása és az eloszlások közötti távolság mérése.

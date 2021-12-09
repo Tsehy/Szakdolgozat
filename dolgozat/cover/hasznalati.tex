@@ -4,17 +4,29 @@
 
 \vskip 1cm
 
-Ennek a címe lehet például \textit{A mellékelt CD tartalma} vagy \textit{Adathordozó használati útmutató} is.
-
-Ez jellemzően csak egy fél-egy oldalas leírás.
-Arra szolgál, hogy ha valaki kézhez kapja a szakdolgozathoz tartozó CD-t, akkor tudja, hogy mi hol van rajta.
-Jellemzően elég csak felsorolni, hogy milyen jegyzékek vannak, és azokban mi található.
-Az elkészített programok telepítéséhez, futtatásához tartozó instrukciók kerülhetnek ide.
-
-A CD lemezre mindenképpen rá kell tenni
+\noindent \textbf{A CD az alábbi jegyzékeket tartalmazza:}
 \begin{itemize}
-\item a dolgozatot egy \texttt{dolgozat.pdf} fájl formájában,
-\item a LaTeX forráskódját a dolgozatnak,
-\item az elkészített programot, fontosabb futási eredményeket (például ha kép a kimenet),
-\item egy útmutatót a CD használatához (ami lehet ez a fejezet külön PDF-be vagy MarkDown fájlként kimentve).
+	\item\textit{dolgozat:} A szakdolgozat szövege pdf illetve LaTeX állományként.
+	\item\textit{source{\_}code:} A futtatható kódok találhatóak benne.
 \end{itemize}
+
+\noindent\textbf{A \textit{source{\_}code} jegyzék tartalma:}
+\begin{itemize}
+	\item\textit{jelly.py:} A testek reprezentálásához szükséges osztályok találkatóak meg benne.
+	\item\textit{chi2{\_}test.py:} A $\chi^2$ próba tesztelése.
+	\item\textit{lambda{\_}value{\_}test.py:} A $\lambda$ érték meghatározására használt kód.
+	\item\textit{mse{\_}vs{\_}chi2.py:} Az MSE és $\chi^2$ összehasonlítása legkisebb négyzetek módszerével.
+	\item\textit{plane{\_}test.py:} Három pontra illeszkedő sík meghatározása.
+	\item\textit{rotate{\_}test.py:} Forgatások tesztelésére szolgáló program.
+	\item\textit{velocitylengthgraph.py:} A dobások során mérhető mozgásvektorok összhosszúsága által megadott grafikont kirajzoló program.
+	\item\textit{tetrahedron{\_}test.py, doubletetrahedron{\_}test.py, octahedron{\_}test.py:} A tényleges optimalizáló kódok különböző testekre.
+	\item\textit{graphs:} A kapott grafikonokat tartalmazó jegyzék.
+	\item\textit{objects:} Az optimalizálás során elért objektumokat tartalmazza.
+\end{itemize}
+
+\noindent\textbf{A kódok futtatása:}
+
+\textit{A programok Python $3.9.4$-ben lettek megírva.}
+\textit{A futáshoz szükséges a Matplotlib, NumPy, SciPy könyvtárak telepítése.}
+
+Az egyes kódokat parancssorból a \textit{source{\_}code} jegyzékbe való navigálás után a \textit{python} paranccsal tudjuk futtatni.

@@ -1,7 +1,23 @@
 \Chapter{Összefoglalás}
 
-Hasonló szerepe van, mint a bevezetésnek.
-Itt már múltidőben lehet beszélni.
-A szerző saját meglátása szerint kell összegezni és értékelni a dolgozat fontosabb eredményeit.
-Meg lehet benne említeni, hogy mi az ami jobban, mi az ami kevésbé jobban sikerült a tervezettnél.
-El lehet benne mondani, hogy milyen további tervek, fejlesztési lehetőségek vannak még a témával kapcsolatban.
+A dolgozat célja, a módosító program elkészítése sikerült.
+Láthattuk, hogy képes alakzattól és eloszlástól függetlenül konvergálni az elvárt testhez.
+
+Nagyobb problémát a $\lambda$ érték, valamint a lassú futási idő okozta.
+Az utóbbin úgy lehetne javítani, hogy a dobássorozatok elvégzését kiszervezzük \textit{C} programokba, ezzel gyorsítva a futást.
+Így tudnánk nagyobb mintára végezni a szimulációkat, pontosabb eredményeket kaphatnánk, illetve megvizsgálhatnánk a test eredeti alakja, az elvárt eloszlás és a $\lambda$ közötti összefüggést.
+
+A tesztelések során a testeknek csak háromszög oldallapjuk volt, mivel a komplexebb oldallapok módosításánál ügyelnünk kell arra, hogy sík maradjon minden oldal.
+A használt heurisztika a konvexitást megőrizte, de a nem háromszög oldallapokat "széttörte" több oldallapra.
+További fejlesztés lehetne ehhez a problémához ennek a hibának a kezelése, vagy egy olyan módszer keresése, amely síkban tudja tartani az összes oldallapot.
+
+A fent említett módosításokat elvégezve meg lehetne vizsgálni, hogy ugyan azt az eloszlást különböző testekből kiindulva hogyan tudja közelíteni a program (például kocka és dupla tetraéderre nézve).
+Ezen felül lehetne vizsgálni, hogy a kapott test oldalainak a területe hogyan változik a módosítások közben.
+Esetleg valamilyen vizuális megjelenítőt lehetne készíteni, amivel láthatjuk a testet optimalizálás alatt, hogy hogyan változik.
+
+A jelenlegi verzió az elvárt valószínűségeket mindig egy adott oldalhoz köti, érdemes lenne úgy módosítani, hogy optimalizálás közben rendeli hozzá az oldalakhoz az értékeket, és ezeknek a sorrendjét közben tudja változtatni.
+Ilyenkor felmerülhet olyan probléma, hogy két oldalhoz tartozó elvárt értékeket folyamatosan cseréli, és emiatt sosem tud leállni az optimalizálás.
+Ehhez egy külön leállási feltétel vizsgálatot kellene csinálni.
+
+Az említett módosítások nélkül is az elvárt feltételeknek megfelelően működik a program, és kellő futási idő után elég pontos eredményeket tud adni.
+Az így kapott kockák elkészítése a WaveFront OBJ fájlokba történő mentése után 3D nyomtatók segítségével (megfelelő beállítások használatával) könnyen előállíthatóak.

@@ -3,13 +3,13 @@
 A fejezetben három heurisztikát fogunk összehasonlítani a testek optimalizálására.
 Ezek közül egyet fogunk választani, amellyel \aref{ch:opt} fejezetben fogunk számolni.
 
-A fejezetben említése kerülő egység hossz alatt a használt koordináta rendszer egységét értjük.
+A fejezetben említésre kerülő egység hossz alatt a használt koordináta rendszer egységét értjük.
 A testek éleinek hossza körülbelül 50 egységnek felel meg.
 
 \Section{Az eloszlások távolságának mérése}
 
 Az eloszlások illetve gyakoriságok távolságát több módon is mérhetjük.
-Mivel nem cél a különböző metrikákkal kapott hibaértékek összehasonlítása, ezért lényegtelen, hogy a mért és elvárt gyakoriságok vagy/és valószínűségek távolságát vizsgáljuk.
+Mivel nem cél a különböző metrikákkal kapott hibaértékek összehasonlítása, ezért lényegtelen, hogy a mért és elvárt gyakoriságok és/vagy valószínűségek távolságát vizsgáljuk.
 Ennek a hibának a mérésére a mért és elvárt értékek különbségéből kapható vektor normáival is megtörténhet:
 \[
 \vec{v} = \vec{e} - \vec{m},
@@ -34,27 +34,36 @@ Lehetséges ezeken kívül az átlagos négyzetes hibának (\textit{mean squared
 MSE(\vec{v}) = \frac{1}{n} \sum_{i=1}^{n}(v_i)^2.
 \]
 
-Az eloszlások távolságának a mérésére a $\chi^2$-et szokták még alkalmazni, amellyel később meg lehet vizsgálni hogy milyen szignifikancia szinten egyezik meg az elvárt és mért értéksorozat:
+Az eloszlások távolságának a mérésére a $\chi^2$-et szokták még alkalmazni, amellyel később meg lehet vizsgálni, hogy milyen szignifikancia szinten egyezik meg az elvárt és mért értéksorozat eloszlása:
 \[
 \chi^2=\sum_{i=1}^{n} \frac{(m_i - e_i)^2}{e_i}.
 \]
 
-A fent említett metrikák közül az MSE-t valamint a $\chi^2$-et használják a leggyakrabban, ezért ezeket fogjuk összehasonlítani optimalizálás során.
-A $\chi^2$ számítására a SciPy \cite{2020SciPy-NMeth} könyvtárbn található függvényt használjuk.
+A fent említett metrikák közül az MSE-t, valamint a $\chi^2$-et használják a leggyakrabban, ezért ezeket fogjuk összehasonlítani optimalizálás során.
+A $\chi^2$ számítására a SciPy \cite{2020SciPy-NMeth} könyvtárban található függvényt használjuk.
 
-Egy tetraéder optimalizálása során az alábbi értékeket mértük:
-\begin{verbatim}
-1 mse = 0.012605000000000002   chi2 = 309.3075
-2 mse = 0.005730000000000002   chi2 = 133.22333333333333
-3 mse = 0.004737500000000001   chi2 = 123.45833333333333
-4 mse = 0.0024330000000000007  chi2 = 69.02083333333334
-5 mse = 0.001435500000000001   chi2 = 33.730000000000004
-6 mse = 0.0010555000000000004  chi2 = 16.908333333333335
-7 mse = 0.00019650000000000003 chi2 = 3.2125
-8 mse = 0.0010955000000000001  chi2 = 21.553333333333335
-9 mse = 7.399999999999977e-05  chi2 = 1.0333333333333332
-\end{verbatim}
-Addig módosítottuk a testet, amíg a kapott MSE érték $10^{-4}$ allatti nem lett. A dobássorozatok mérete $N=1000$ volt, és a későbbi \ref{sect:facemodification} szakaszban mutatott heurisztikát használtuk.
+\begin{table}[h!]
+	\centering
+	\caption{Optimalizálás során mért MSE és $\chi^2$ értékek.}
+	\label{tab:compare}
+	\begin{tabular}{l|c|c|}
+		iteráció & MSE & $\chi^2$ \\
+		\hline
+		0 & 0.012605000000000002 & 309.3075 \\
+		1 & 0.005730000000000002 & 133.22333333333333 \\
+		2 & 0.004737500000000001 & 123.45833333333333 \\
+		3 & 0.0024330000000000007 & 69.02083333333334 \\
+		4 & 0.001435500000000001 & 33.730000000000004 \\
+		5 & 0.0010555000000000004 & 16.908333333333335 \\
+		6 & 0.00019650000000000003 & 3.2125 \\
+		7 & 0.0010955000000000001 & 21.553333333333335 \\
+		8 & 7.399999999999977e-05 & 1.0333333333333332 \\
+		\hline
+	\end{tabular}
+\end{table}
+
+Addig módosítottuk a testet, amíg a kapott MSE érték $10^{-4}$ alá nem esett, a kapott értékek \aref{tab:compare} táblázatban láthatóak.
+A dobássorozatok mérete $N=1000$ volt, és a későbbi \ref{sect:facemodification} szakaszban mutatott heurisztikát használtuk.
 Az értékek által meghatározott görbék alakra nagyon hasonlónak tűntek, ezért a legkisebb négyzetek módszerét alkalmazva összehasonlítjuk őket.
 A számítások alapján $a_0 + a_1\cdot mse = \chi^2$, ahol $a_0 = -1.67216109, a_1 = 24742.3397$.
 \begin{figure}[h!]
@@ -93,8 +102,8 @@ A fent említett okok miatt érdemesebb más heurisztikával optimalizálni a te
 \Section{Lapméret alapján történő korrekció}
 \label{sect:facemodification}
 
-Ez az algoritmus a csúcspontokat aszerint mozgatja, hogy oldallapokra nézve az elvárt és mért valószínűség hogyan viszonyul egymáshoz.
-Ha az adott oldallap előfordulásán növelni szeretnénk akkor a csúcsokat lap súlypontjából kifelé mutató egység hosszúságú vektorokkal mozdítjuk el, egyébként a csúcsokat a súlypont felé mozgatjuk.
+Ez az algoritmus a csúcspontokat aszerint mozgatja, hogy az oldallapokra nézve az elvárt és mért valószínűség hogyan viszonyul egymáshoz.
+Ha az adott oldallap előfordulásán növelni szeretnénk, akkor a csúcsokat lap súlypontjából kifelé mutató egység hosszúságú vektorokkal mozdítjuk el, egyébként a csúcsokat a súlypont felé mozgatjuk.
 
 \Aref{fig:facemodification} ábrán látható kék vektorok felelnek az oldallap növeléséért, a vörösek pedig annak csökkentéséért.
 
@@ -146,18 +155,18 @@ Mivel az algoritmus az aktuálisan mért eloszlásokhoz képest módosítja a la
 \Section{Módosítás az arányok figyelembe vételével}
 \label{sect:ratiomodification}
 
-Ez a folyamat szinte teljes mértékben megegyezik az előző pontban leírt metódushoz.
+Ez a folyamat szinte teljes mértékben megegyezik az előző pontban leírt metódussal.
 Az egyetlen lényeges különbség annyi, hogy az oldallapokat a gyorsabb konvergencia miatt nem egység hosszú vektorokkal módosítjuk.
-A módosító vektorok hossza függ az oldallapokhoz mért és elvárt valószínűségek különbségétől, hogy a nagyobb eltérések esetében drasztikusabban tudjuk az oldallapokat módosítani.
-Olyan eset is előfordulhat, hogy az oldallap ideális méretének eléréséhez az oldallapot fél egység hossz vektorokkal kéne növelnünk, és ezt a méretet a \ref{sect:facemodification} szakaszban leírt függvénnyel nem tudjuk elérni.
+A módosító vektorok hossza függ az oldallapokhoz becsült és az azokhoz elvárt valószínűségek különbségétől, hogy a nagyobb eltérések esetében drasztikusabban tudjuk az oldallapokat módosítani.
+Olyan eset is előfordulhat, hogy az oldallap ideális méretének eléréséhez az oldallapot fél egység hosszú vektorokkal kellene növelnünk, és ezt a méretet a \ref{sect:facemodification} szakaszban leírt függvénnyel nem tudjuk elérni.
 
 Az algoritmus a módosító vektorok hosszát az oldallapokhoz tartozó várt és mért valószínűségek különbségével határozza meg.
 Ezt a különbséget egy $\lambda$ konstanssal megszorozva tudunk a konvergencia sebességén módosítani.
 Az $i$-edik oldallap $j$-edik pontját mozdító vektort az alábbi képlettel kapjuk meg:
 \[
-\vec{v} = (\vec{p_j} - \vec{c_i}) * \lambda * (e_i - m_i),
+\vec{v} = (\vec{p_j} - \vec{c_i})\cdot\lambda\cdot(e_i - m_i),
 \]
-ahol $\vec{c_i}$ Az $i$-edik oldallap középpontja, $e_i$ és $m_i$ pedig az oldalhoz tartozó elvárt, és mért gyakoriság.
+ahol $\vec{c_i}$ az $i$-edik oldallap középpontja, $e_i$ és $m_i$ pedig az oldalhoz tartozó elvárt, és mért gyakoriság.
 
 \begin{figure}[h!]
 	\centering
@@ -166,13 +175,13 @@ ahol $\vec{c_i}$ Az $i$-edik oldallap középpontja, $e_i$ és $m_i$ pedig az ol
 	\label{fig:lambda}
 \end{figure}
 
-A \ref{fig:lambda} grafikonon látható egy tetraéder módosításához szükséges iteráció számok az egyes $\lambda$ értékekhez.
-Látható hogy nem tudunk egyértelműen meghatározni ez alapján egy egyértelmű minimumot.
-Hogy ezt meg tudjuk tenni minden $\lambda$ értékhez több dobássorozatot kéne csinálnunk, és az így mért iterációszámokat kéne átlagolnunk.
+A \ref{fig:lambda} grafikonon láthatóak egy tetraéder módosításához szükséges iteráció számok az egyes $\lambda$ értékekhez.
+Látható, hogy nem tudunk egyértelműen meghatározni ez alapján egy egyértelmű minimumot.
+Hogy ezt meg tudjuk tenni minden $\lambda$ értékhez több dobássorozatot kellene elvégezni, és az így mért iterációszámokat kellene átlagolnunk.
 Az egyes módosítások hossza nagyban függ a test alakjától, a várt eloszlástól, az elő mérés pontosságától, valamint a $\lambda$ értéktől.
 Minden testre és azokhoz tartozó eloszlásra nézve a $\lambda$ meghatározása sokkal több időt vesz igénybe, mint ha végig egy adott konstans értékkel számolnánk.
 Emiatt az optimalizálásnál $\lambda = 1$ értékkel fogunk számolni.
 
 \begin{remark}
-A tesztelések során egyik test sem került konkáv állapotba, így azt feltételezve hogy ezzel a heurisztikával nem kapunk konvex testből konkáv testet, a konvexitás vizsgálatát a gyorsabb futási idők miatt nem végezzük el.
+A tesztelések során egyik test sem került konkáv állapotba, így azt feltételezve, hogy ezzel a heurisztikával nem kapunk konvex testből konkáv testet, a konvexitás vizsgálatát a gyorsabb futási idők miatt nem végezzük el.
 \end{remark}

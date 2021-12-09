@@ -303,15 +303,15 @@ class Dice:
         return tmp
 
     def saveObj(self, name):
-        filepath= f"objects/{name}.obj"
+        filepath = f"objects/{name}.obj"
 
         with open(filepath, 'w') as f:
             f.write("# OBJ file\n")
             for particle in self.particles:
                 f.write("v {} {} {}\n".format(*particle.position))
-            for i in range(len(self.faces)):
+            for face in self.faces:
                 f.write("f")
-                for p in self.faces[i]:
+                for p in face:
                     f.write(f" {p + 1}")
                 f.write("\n")
 

@@ -1,14 +1,27 @@
 \Chapter{Bevezetés}
 
-A szakdolgozatom célja egy olyan program megírása, amely egy adott testet úgy módosít, hogy a testet dobókockaként használva az oldalak előfordulása az általunk megadott értékekhez közelítenek.
-Azért nem bízzuk a test teljes generálását a programra, mert az egyes $n$-oldalú testekhez nem egy testháló létezik, és így több testhálóhoz is le tudjuk tesztelni a programot.
+Dobókocka alatt alapvetően egy olyan, közel kocka alakú objektumra gondolhatunk, amelynek (tipikusan pöttyökkel) számozottak a lapjai. Az ezzel végzett dobássorozattól azt várjuk, hogy az $[1, 6]$ intervallumon lévő egész értékek egyenlő, $\dfrac{1}{6}$ valószínűséggel forduljanak elő.
 
-A probléma megoldása nem triviális, érdekes optimalizálási feladat.
+A szakdolgozat témáját alapvetően két ötlet motiválja. Egyrészt a dobáshoz használt testnek nem szükségszerű kocka alakúnak lennie, más konvex testek is alkalmasak lehetnek arra, hogy egy adott diszkrét eloszlás szerint véletlenszerű értékeket szolgáltassanak. Másrészt, a testhez az eloszlás meghatározásának az inverz problémája is megoldható bizonyos esetekben.
+A szakdolgozat ezen problémát igyekszik körüljárni, és heurisztikus módszerekkel egy adott, diszkrét eloszlás alapján becslést adni egy olyan testre, amely lapjaihoz a megfelelő valószínűségek tartoznak.
+
+A vizsgálatokhoz szükség lesz egy keretrendszerre. Ennek elkészítését részletesen bemutatja a dolgozat. Ennek az egyik lényeges eleme egy olyan fizikai szimulátor, amely egy testet le tud ejteni, és meg tudja azt vizsgálni, hogy bizonyos idő elteltével melyik lapján áll meg.
+
+% Ehhez a problémakörhöz kell egy fizikai szimulációs környezetet létrehozni, ami a dobási kísérletek elvégzéséért felel, valamint a testeknek egy általános reprezentációja, amiken a módosításokat könnyen el tudjuk végezni.
+
+Részletezésre kerül majd, hogy egy dobássorozat alapján hogyan lehet azt megállapítani, hogy az elvárt és a kapott eloszlások megegyeznek-e. Az ehhez szükséges hibametrikák bemutatását követően olyan algoritmusokról lesz szó, amelyek a test csúcspontjainak elmozdításával keresik a problématérben az optimális testet.
+
+A probléma megoldása nem triviális, egy érdekes optimalizálási feladat.
 A módosításoknál figyelnünk kell az előfordulási arányok mellett a test konvexitására, és a nem háromszög alakú oldallapok síkban maradására, hogy ne "törjön" több háromszög alakú oldalra.
 
-Ehhez a problémakörhöz kell egy fizikai szimulációs környezetet létrehozni, ami a dobási kísérletek elvégzéséért felel, valamint a testeknek egy általános reprezentációja, amiken a módosításokat könnyen el tudjuk végezni.
+%Az optimalizálások során azt feltételezzük, hogy a keresett test létezik, de pontos egyezés helyett valamilyen hiba szerint fogjuk az alakzatokat elfogadni.
+%A dolgozatban több különböző hibaszámítást fogunk megvizsgálni, és ezeket fogjuk összehasonlítani, hogy számunkra melyik használata lenne a legelőnyösebb.
 
-Az optimalizálások során azt feltételezzük, hogy a keresett test létezik, de pontos egyezés helyett valamilyen hiba szerint fogjuk az alakzatokat elfogadni.
-A dolgozatban több különböző hibaszámítást fogunk megvizsgálni, és ezeket fogjuk összehasonlítani, hogy számunkra melyik használata lenne a legelőnyösebb.
+A dolgozat a problémát teljes általánosságában nem oldja meg. Egy adott diszkrét eloszláshoz tartozó valószínűségi változó felvehető értékeinek száma alapján közvetlenül adottnak tekintjük a test topológiáját. Általánosságban külön vizsgálatot igényelne, hogy létezhet-e egyáltalán az adott eloszláshoz megfelelő test. A megoldhatósági probléma egzakt felírása helyett azt remélhetjük, hogy az optimalizáláshoz használt heurisztika az egyes iterációkhoz tartozó hibákkal jelzi majd, hogy milyen pontossággal sikerült közelíteni az elvárt eloszlást.
 
-A dolgozatban részletes leírásra kerül a szimuláció felépítése, az adatok tárolása és az eloszlások közötti távolság mérése.
+% A szakdolgozatom célja egy olyan program megírása, amely egy adott testet úgy módosít, hogy a testet dobókockaként használva az oldalak előfordulása az általunk megadott értékekhez közelítenek.
+%Azért nem bízzuk a test teljes generálását a programra, mert az egyes $n$-oldalú testekhez nem egy testháló létezik, és így több testhálóhoz is le tudjuk tesztelni a programot.
+
+A dolgozatban a vizsgálatokhoz elkészített szoftver felépítése és működése is kifejtésre kerül. Láthatunk példákat, amelyekben a konvergencia és a becsléssel kapott test is szemléltetésre kerül.
+
+% A dolgozatban részletes leírásra kerül a szimuláció felépítése, az adatok tárolása és az eloszlások közötti távolság mérése.
